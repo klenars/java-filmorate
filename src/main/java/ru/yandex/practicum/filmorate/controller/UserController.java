@@ -16,8 +16,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    int idForUsers = 1;
-    Map<Integer, User> users = new HashMap<>();
+    private int idForUsers = 1;
+    private final Map<Integer, User> users = new HashMap<>();
 
     @PostMapping
     public User addUser(@Valid @RequestBody User user) {
@@ -27,9 +27,8 @@ public class UserController {
         if (userValidation(user)) {
             users.put(id, user);
             log.info("Added user name: {}, id: {}", user.getName(), user.getId());
-            return user;
         }
-        return null;
+        return user;
     }
 
     @PutMapping
@@ -42,9 +41,8 @@ public class UserController {
         if (userValidation(user)) {
             users.put(id, user);
             log.info("Updated user id: {}", user.getId());
-            return user;
         }
-        return null;
+        return user;
     }
 
     @GetMapping

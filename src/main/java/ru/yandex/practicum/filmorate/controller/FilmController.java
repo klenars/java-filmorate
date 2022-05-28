@@ -16,8 +16,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/films")
 public class FilmController {
-    int idForFilms = 1;
-    Map<Integer, Film> films = new HashMap<>();
+    private int idForFilms = 1;
+    private final Map<Integer, Film> films = new HashMap<>();
 
     @PostMapping
     public Film addFilm(@Valid @RequestBody Film film) {
@@ -27,9 +27,8 @@ public class FilmController {
         if (filmValidation(film)) {
             films.put(id, film);
             log.info("Added film name: {}, id: {}", film.getName(), film.getId());
-            return film;
         }
-        return null;
+        return film;
     }
 
     @PutMapping
@@ -42,9 +41,8 @@ public class FilmController {
         if (filmValidation(film)) {
             films.put(id, film);
             log.info("Updated film id: {}", film.getId());
-            return film;
         }
-        return null;
+        return film;
     }
 
     @GetMapping
