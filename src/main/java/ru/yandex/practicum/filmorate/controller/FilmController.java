@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -10,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/films")
 public class FilmController {
@@ -23,6 +25,7 @@ public class FilmController {
 
         if (filmValidation(film)) {
             films.put(id, film);
+            log.info("Added film name: {}, id: {}", film.getName(), film.getId());
             return film;
         }
         return null;
@@ -32,10 +35,12 @@ public class FilmController {
     public Film updateFilm(@RequestBody Film film) {
         int id = film.getId();
         if (!films.containsKey(id)){
+            log.warn("Unknown ID for update film!");
             throw new ValidationException("Unknown ID for update film!");
         }
         if (filmValidation(film)) {
             films.put(id, film);
+            log.info("Updated film id: {}", film.getId());
             return film;
         }
         return null;
@@ -47,14 +52,21 @@ public class FilmController {
     }
 
     private boolean filmValidation(Film film) {
+        String errorMessage = null;
+
         if (film.getName().isBlank()) {
-            throw new ValidationException("Name is empty!");
+            errorMessage = "Name is empty!";
         } else if (film.getDescription().length() > 200) {
-            throw new ValidationException("Description is more than 200 characters!");
+            errorMessage = "Description is more than 200 characters!";
         } else if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
-            throw new ValidationException("Release date can't be earlier than 28-12-1895!");
+            errorMessage = "Release date can't be earlier than 28-12-1895!";
         } else if (film.getDuration() < 0) {
-            throw new ValidationException("Duration can't be negative!");
+            errorMessage = "Duration can't be negative!";
+        }
+
+        if (errorMessage != null) {
+            log.warn(errorMessage);
+            throw new ValidationException(errorMessage);
         } else {
             return true;
         }

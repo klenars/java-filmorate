@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -10,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -23,6 +25,7 @@ public class UserController {
 
         if (userValidation(user)) {
             users.put(id, user);
+            log.info("Added user name: {}, id: {}", user.getName(), user.getId());
             return user;
         }
         return null;
@@ -32,10 +35,12 @@ public class UserController {
     public User updateUser(@RequestBody User user) {
         int id = user.getId();
         if (!users.containsKey(id)) {
+            log.warn("Unknown ID for update user!");
             throw new ValidationException("Unknown ID for update user!");
         }
         if (userValidation(user)) {
             users.put(id, user);
+            log.info("Updated user id: {}", user.getId());
             return user;
         }
         return null;
@@ -51,12 +56,19 @@ public class UserController {
             user.setName(user.getLogin());
         }
 
+        String errorMessage = null;
+
         if (user.getEmail().isBlank() || !user.getEmail().contains("@")) {
-            throw new ValidationException("E-mail is wrong!");
+            errorMessage = "E-mail is wrong!";
         } else if (user.getLogin().isBlank() || user.getLogin().contains(" ")) {
-            throw new ValidationException("Login is wrong!");
+            errorMessage = "Login is wrong!";
         } else if (user.getBirthday().isAfter(LocalDate.now())) {
-            throw new ValidationException("Birthday can't be in the future!");
+            errorMessage = "Birthday can't be in the future!";
+        }
+
+        if (errorMessage != null) {
+            log.warn(errorMessage);
+            throw new ValidationException(errorMessage);
         } else {
             return true;
         }
