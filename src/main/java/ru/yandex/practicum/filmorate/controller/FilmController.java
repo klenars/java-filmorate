@@ -19,7 +19,7 @@ public class FilmController {
     public Film addFilm(@RequestBody Film film) {
         int id = film.getId();
 
-        if (films.containsKey(id)){
+        if (films.containsKey(id)) {
             throw new ValidationException("ID already exist!");
         }
         if (filmValidation(film)) {
