@@ -13,15 +13,14 @@ import java.util.Map;
 @RestController
 @RequestMapping("/users")
 public class UserController {
+    int idForUsers = 1;
     Map<Integer, User> users = new HashMap<>();
 
     @PostMapping
     public User addUser(@RequestBody User user) {
-        int id = user.getId();
+        int id = idForUsers++;
+        user.setId(id);
 
-        if (users.containsKey(id)){
-            throw new ValidationException("ID already exist!");
-        }
         if (userValidation(user)) {
             users.put(id, user);
             return user;
@@ -31,8 +30,12 @@ public class UserController {
 
     @PutMapping
     public User updateUser(@RequestBody User user) {
+        int id = user.getId();
+        if (!users.containsKey(id)) {
+            throw new ValidationException("Unknown ID for update user!");
+        }
         if (userValidation(user)) {
-            users.put(user.getId(), user);
+            users.put(id, user);
             return user;
         }
         return null;

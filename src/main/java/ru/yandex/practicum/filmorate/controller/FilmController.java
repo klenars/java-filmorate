@@ -13,15 +13,14 @@ import java.util.Map;
 @RestController
 @RequestMapping("/films")
 public class FilmController {
+    int idForFilms = 1;
     Map<Integer, Film> films = new HashMap<>();
 
     @PostMapping
     public Film addFilm(@RequestBody Film film) {
-        int id = film.getId();
+        int id = idForFilms++;
+        film.setId(id);
 
-        if (films.containsKey(id)) {
-            throw new ValidationException("ID already exist!");
-        }
         if (filmValidation(film)) {
             films.put(id, film);
             return film;
@@ -31,8 +30,12 @@ public class FilmController {
 
     @PutMapping
     public Film updateFilm(@RequestBody Film film) {
+        int id = film.getId();
+        if (!films.containsKey(id)){
+            throw new ValidationException("Unknown ID for update film!");
+        }
         if (filmValidation(film)) {
-            films.put(film.getId(), film);
+            films.put(id, film);
             return film;
         }
         return null;
@@ -50,7 +53,7 @@ public class FilmController {
             throw new ValidationException("Description is more than 200 characters!");
         } else if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
             throw new ValidationException("Release date can't be earlier than 28-12-1895!");
-        } else if (film.getDuration().isNegative()) {
+        } else if (film.getDuration() < 0) {
             throw new ValidationException("Duration can't be negative!");
         } else {
             return true;
