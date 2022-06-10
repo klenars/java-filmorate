@@ -6,10 +6,12 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Past;
 import java.time.LocalDate;
+import java.util.Set;
 
 @Data
 public class User {
     private int id;
+    private Set<Long> friendsIDs;
 
     @Email
     private String email;
