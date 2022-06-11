@@ -35,18 +35,12 @@ public class UserService {
     }
 
     public User getUserById(int id) {
-        if (!userStorage.userIsExist(id)){
-            log.warn(String.format("User with id: %d doesn't exist!", id));
-            throw new ValidationException(String.format("User with id: %d doesn't exist!", id));
-        }
+        userIsExists(id);
         return userStorage.getUser(id);
     }
 
     public User updateUser(User user) {
-        if (!userStorage.userIsExist(user.getId())) {
-            log.warn("Unknown ID for update user!");
-            throw new ValidationException("Unknown ID for update user!");
-        }
+        userIsExists(user.getId());
         if (userValidation(user)) {
             userStorage.addUser(user);
             log.info("Updated user id: {}", user.getId());
@@ -56,6 +50,28 @@ public class UserService {
 
     public List<User> getAllUsers() {
         return new ArrayList<>(userStorage.getAllUsers());
+    }
+
+    public void addFriend(int id, int friendId) {
+        userIsExists(id);
+        userIsExists(friendId);
+
+        userStorage.getUser(id).addFriend(friendId);
+    }
+
+    public void deleteFriend(int id, int friendId) {
+        userIsExists(id);
+        userIsExists(friendId);
+
+        userStorage.getUser(id).deleteFriend(friendId);
+    }
+
+    private boolean userIsExists(int id) {
+        if (!userStorage.userIsExist(id)){
+            log.warn(String.format("User with id: %d doesn't exist!", id));
+            throw new ValidationException(String.format("User with id: %d doesn't exist!", id));
+        }
+        return true;
     }
 
     private boolean userValidation(User user) {
@@ -80,4 +96,5 @@ public class UserService {
             return true;
         }
     }
+
 }

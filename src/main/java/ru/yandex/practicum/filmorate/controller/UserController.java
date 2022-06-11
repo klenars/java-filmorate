@@ -36,9 +36,28 @@ public class UserController {
     }
 
     @GetMapping
-    public List<User> getAllFilms() {
+    public List<User> getAllUsers() {
         return userService.getAllUsers();
     }
 
+    @PutMapping("/{id}/friends/{friendId}")
+    public void addFriend(
+            @PathVariable int id,
+            @PathVariable int friendId
+    ) {
+        userService.addFriend(id, friendId);
+    }
 
+    @PutMapping("/{id}/friends/{friendId}")
+    public void deleteFriend(
+            @PathVariable int id,
+            @PathVariable int friendId
+    ) {
+        userService.deleteFriend(id, friendId);
+    }
+
+    @GetMapping("{id}/friends")
+    public List<User> getAllFriendsByUserId(@PathVariable int id) {
+
+    }
 }

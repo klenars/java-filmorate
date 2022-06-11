@@ -11,7 +11,7 @@ import java.util.Set;
 @Data
 public class User {
     private int id;
-    private Set<Long> friendsIDs;
+    private Set<Integer> friendsIDs;
 
     @Email
     private String email;
@@ -23,4 +23,12 @@ public class User {
 
     @Past
     private LocalDate birthday;
+
+    public void addFriend(int friendId) {
+        friendsIDs.add(friendId);
+    }
+
+    public void deleteFriend(int friendId) {
+        friendsIDs.remove(friendId);
+    }
 }

@@ -11,7 +11,7 @@ import java.util.Set;
 @Data
 public class Film {
     private int id;
-    private Set<Long> idUsersWhoLiked;
+    private Set<Integer> idUsersWhoLiked;
 
     @NotBlank
     private String name;
