@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.ResourceNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
@@ -36,18 +37,14 @@ public class FilmService {
     }
 
     public Film getFilmById(int id) {
-        if (!filmStorage.filmIsExist(id)){
-            log.warn(String.format("Film with id: %d doesn't exist!", id));
-            throw new ValidationException(String.format("Film with id: %d doesn't exist!", id));
-        }
+        filmIsExists(id);
+
         return filmStorage.getFilm(id);
     }
 
     public Film updateFilm(Film film) {
-        if (!filmStorage.filmIsExist(film.getId())){
-            log.warn("Unknown ID for update film!");
-            throw new ValidationException("Unknown ID for update film!");
-        }
+        filmIsExists(film.getId());
+
         if (filmValidation(film)) {
             filmStorage.addFilm(film);
             log.info("Updated film id: {}", film.getId());
@@ -81,7 +78,7 @@ public class FilmService {
     private boolean filmIsExists(int id) {
         if (!filmStorage.filmIsExist(id)){
             log.warn(String.format("Film with id: %d doesn't exist!", id));
-            throw new ValidationException(String.format("Film with id: %d doesn't exist!", id));
+            throw new ResourceNotFoundException(String.format("Film with id: %d doesn't exist!", id));
         }
         return true;
     }
