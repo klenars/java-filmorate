@@ -77,6 +77,14 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    public List<User> getCommonFriends(int id, int otherId) {
+
+        return userStorage.getUser(id).getFriendsIDs().stream()
+                .filter(friendId -> userStorage.getUser(otherId).getFriendsIDs().contains(friendId))
+                .map(friendId -> userStorage.getUser(friendId))
+                .collect(Collectors.toList());
+    }
+
     private boolean userIsExists(int id) {
         if (!userStorage.userIsExist(id)){
             log.warn(String.format("User with id: %d doesn't exist!", id));
@@ -107,5 +115,6 @@ public class UserService {
             return true;
         }
     }
+
 
 }
