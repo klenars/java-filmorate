@@ -17,19 +17,23 @@ import java.util.stream.Collectors;
 @Service
 public class FilmService {
 
-    private int idForFilms = 1;
+    private static int idForFilms = 1;
     private final FilmStorage filmStorage;
+    private final UserService userService;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage) {
+    public FilmService(
+            FilmStorage filmStorage,
+            UserService userService
+    ) {
         this.filmStorage = filmStorage;
+        this.userService = userService;
     }
 
     public Film addFilm(Film film) {
-        int id = idForFilms++;
-        film.setId(id);
-
         if (filmValidation(film)) {
+            int id = idForFilms++;
+            film.setId(id);
             filmStorage.addFilm(film);
             log.info("Added film name: {}, id: {}", film.getName(), film.getId());
         }
@@ -64,23 +68,23 @@ public class FilmService {
 
     public void deleteLike(int id, int userId) {
         filmIsExists(id);
+        userService.userIsExists(userId);
 
         filmStorage.getFilm(id).deleteLike(userId);
     }
 
     public List<Film> getPopularFilms(int count) {
         return filmStorage.getAllFilms().stream()
-                .sorted(Comparator.comparingInt(Film::likesQuantity))
+                .sorted(Comparator.comparingInt(Film::likesQuantity).reversed())
                 .limit(count)
                 .collect(Collectors.toList());
     }
 
-    private boolean filmIsExists(int id) {
-        if (!filmStorage.filmIsExist(id)){
+    private void filmIsExists(int id) {
+        if (!filmStorage.filmIsExist(id)) {
             log.warn(String.format("Film with id: %d doesn't exist!", id));
             throw new ResourceNotFoundException(String.format("Film with id: %d doesn't exist!", id));
         }
-        return true;
     }
 
     private boolean filmValidation(Film film) {
@@ -103,7 +107,4 @@ public class FilmService {
             return true;
         }
     }
-
-
-
 }

@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import org.junit.jupiter.api.Test;
+import ru.yandex.practicum.filmorate.exception.ResourceNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
@@ -39,6 +40,6 @@ class UserControllerTest {
         User user = new User();
         user.setId(-1);
 
-        assertThrows(ValidationException.class, () -> userController.updateUser(user));
+        assertThrows(ResourceNotFoundException.class, () -> userController.updateUser(user));
     }
 }

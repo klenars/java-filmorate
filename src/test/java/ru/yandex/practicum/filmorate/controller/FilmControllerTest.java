@@ -1,17 +1,25 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import org.junit.jupiter.api.Test;
+import ru.yandex.practicum.filmorate.exception.ResourceNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class FilmControllerTest {
-    FilmController filmController = new FilmController(new FilmService(new InMemoryFilmStorage()));
+    FilmController filmController = new FilmController(
+            new FilmService(
+                    new InMemoryFilmStorage(),
+                    new UserService(new InMemoryUserStorage())
+            )
+    );
 
     @Test
     void addFilm() {
@@ -40,6 +48,6 @@ class FilmControllerTest {
         Film film = new Film();
         film.setId(-1);
 
-        assertThrows(ValidationException.class, () -> filmController.updateFilm(film));
+        assertThrows(ResourceNotFoundException.class, () -> filmController.updateFilm(film));
     }
 }

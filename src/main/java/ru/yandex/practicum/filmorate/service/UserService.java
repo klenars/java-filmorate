@@ -18,8 +18,8 @@ import java.util.stream.Collectors;
 @Service
 public class UserService {
 
-    private int idForUsers = 1;
-    UserStorage userStorage;
+    private static int idForUsers = 1;
+    private final UserStorage userStorage;
 
     @Autowired
     public UserService(UserStorage userStorage) {
@@ -27,10 +27,9 @@ public class UserService {
     }
 
     public User addUser(User user) {
-        int id = idForUsers++;
-        user.setId(id);
-
         if (userValidation(user)) {
+            int id = idForUsers++;
+            user.setId(id);
             userStorage.addUser(user);
             log.info("Added user name: {}, id: {}", user.getName(), user.getId());
         }
@@ -75,24 +74,23 @@ public class UserService {
         userIsExists(id);
 
         return userStorage.getUser(id).getFriendsIDs().stream()
-                .map(i -> userStorage.getUser(i))
+                .map(userStorage::getUser)
                 .collect(Collectors.toList());
     }
 
     public List<User> getCommonFriends(int id, int otherId) {
 
-            return userStorage.getUser(id).getFriendsIDs().stream()
-                    .filter(friendId -> userStorage.getUser(otherId).getFriendsIDs().contains(friendId))
-                    .map(friendId -> userStorage.getUser(friendId))
-                    .collect(Collectors.toList());
+        return userStorage.getUser(id).getFriendsIDs().stream()
+                .filter(friendId -> userStorage.getUser(otherId).getFriendsIDs().contains(friendId))
+                .map(userStorage::getUser)
+                .collect(Collectors.toList());
     }
 
-    private boolean userIsExists(int id) {
-        if (!userStorage.userIsExist(id)){
+    public void userIsExists(int id) {
+        if (!userStorage.userIsExist(id)) {
             log.warn(String.format("User with id: %d doesn't exist!", id));
             throw new ResourceNotFoundException(String.format("User with id: %d doesn't exist!", id));
         }
-        return true;
     }
 
     private boolean userValidation(User user) {
