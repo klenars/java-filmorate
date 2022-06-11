@@ -35,11 +35,15 @@ public class UserService {
     }
 
     public User getUserById(int id) {
+        if (!userStorage.userIsExist(id)){
+            log.warn(String.format("User with id: %d doesn't exist!", id));
+            throw new ValidationException(String.format("User with id: %d doesn't exist!", id));
+        }
         return userStorage.getUser(id);
     }
 
     public User updateUser(User user) {
-        if (!userStorage.userIsExist(user)) {
+        if (!userStorage.userIsExist(user.getId())) {
             log.warn("Unknown ID for update user!");
             throw new ValidationException("Unknown ID for update user!");
         }

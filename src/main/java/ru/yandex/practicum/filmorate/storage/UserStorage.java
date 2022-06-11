@@ -10,7 +10,7 @@ public interface UserStorage {
 
     User getUser(int id);
 
-    boolean userIsExist(User user);
+    boolean userIsExist(int id);
 
     List<User> getAllUsers();
 }

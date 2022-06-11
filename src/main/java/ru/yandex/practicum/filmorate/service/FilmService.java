@@ -34,11 +34,15 @@ public class FilmService {
     }
 
     public Film getFilmById(int id) {
+        if (!filmStorage.filmIsExist(id)){
+            log.warn(String.format("Film with id: %d doesn't exist!", id));
+            throw new ValidationException(String.format("Film with id: %d doesn't exist!", id));
+        }
         return filmStorage.getFilm(id);
     }
 
     public Film updateFilm(Film film) {
-        if (!filmStorage.filmExist(film)){
+        if (!filmStorage.filmIsExist(film.getId())){
             log.warn("Unknown ID for update film!");
             throw new ValidationException("Unknown ID for update film!");
         }
