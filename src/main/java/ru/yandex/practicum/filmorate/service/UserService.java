@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -64,6 +65,14 @@ public class UserService {
         userIsExists(friendId);
 
         userStorage.getUser(id).deleteFriend(friendId);
+    }
+
+    public List<User> getAllFriends(int id) {
+        userIsExists(id);
+
+        return userStorage.getUser(id).getFriendsIDs().stream()
+                .map(i -> userStorage.getUser(i))
+                .collect(Collectors.toList());
     }
 
     private boolean userIsExists(int id) {
