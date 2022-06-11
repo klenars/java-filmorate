@@ -8,7 +8,9 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -57,6 +59,33 @@ public class FilmService {
         return filmStorage.getAllFilms();
     }
 
+    public void addLike(int id, int userId) {
+        filmIsExists(id);
+
+        filmStorage.getFilm(id).addLike(userId);
+    }
+
+    public void deleteLike(int id, int userId) {
+        filmIsExists(id);
+
+        filmStorage.getFilm(id).deleteLike(userId);
+    }
+
+    public List<Film> getPopularFilms(int count) {
+        return filmStorage.getAllFilms().stream()
+                .sorted(Comparator.comparingInt(Film::likesQuantity))
+                .limit(count)
+                .collect(Collectors.toList());
+    }
+
+    private boolean filmIsExists(int id) {
+        if (!filmStorage.filmIsExist(id)){
+            log.warn(String.format("Film with id: %d doesn't exist!", id));
+            throw new ValidationException(String.format("Film with id: %d doesn't exist!", id));
+        }
+        return true;
+    }
+
     private boolean filmValidation(Film film) {
         String errorMessage = null;
 
@@ -77,4 +106,7 @@ public class FilmService {
             return true;
         }
     }
+
+
+
 }
