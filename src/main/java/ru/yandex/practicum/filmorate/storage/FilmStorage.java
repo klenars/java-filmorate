@@ -8,6 +8,8 @@ public interface FilmStorage {
 
     void addFilm(Film film);
 
+    Film getFilm(int id);
+
     boolean filmExist(Film film);
 
     List<Film> getAllFilms();

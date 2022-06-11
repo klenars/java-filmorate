@@ -33,6 +33,10 @@ public class FilmService {
         return film;
     }
 
+    public Film getFilmById(int id) {
+        return filmStorage.getFilm(id);
+    }
+
     public Film updateFilm(Film film) {
         if (!filmStorage.filmExist(film)){
             log.warn("Unknown ID for update film!");

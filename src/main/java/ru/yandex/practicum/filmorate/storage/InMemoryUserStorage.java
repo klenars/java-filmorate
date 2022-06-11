@@ -18,6 +18,11 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
+    public User getUser(int id) {
+        return users.get(id);
+    }
+
+    @Override
     public boolean userIsExist(User user) {
         return users.containsKey(user.getId());
     }

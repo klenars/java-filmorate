@@ -34,6 +34,10 @@ public class UserService {
         return user;
     }
 
+    public User getUserById(int id) {
+        return userStorage.getUser(id);
+    }
+
     public User updateUser(User user) {
         if (!userStorage.userIsExist(user)) {
             log.warn("Unknown ID for update user!");
