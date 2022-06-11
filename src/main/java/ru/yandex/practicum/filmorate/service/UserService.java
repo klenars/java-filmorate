@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -79,10 +80,10 @@ public class UserService {
 
     public List<User> getCommonFriends(int id, int otherId) {
 
-        return userStorage.getUser(id).getFriendsIDs().stream()
-                .filter(friendId -> userStorage.getUser(otherId).getFriendsIDs().contains(friendId))
-                .map(friendId -> userStorage.getUser(friendId))
-                .collect(Collectors.toList());
+            return userStorage.getUser(id).getFriendsIDs().stream()
+                    .filter(friendId -> userStorage.getUser(otherId).getFriendsIDs().contains(friendId))
+                    .map(friendId -> userStorage.getUser(friendId))
+                    .collect(Collectors.toList());
     }
 
     private boolean userIsExists(int id) {
