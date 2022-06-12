@@ -10,7 +10,6 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,8 +25,8 @@ public class UserService {
         this.userStorage = userStorage;
     }
 
-    public User addUser(User user) {
-        if (userValidation(user)) {
+    public User add(User user) {
+        if (validation(user)) {
             int id = idForUsers++;
             user.setId(id);
             userStorage.addUser(user);
@@ -36,42 +35,42 @@ public class UserService {
         return user;
     }
 
-    public User getUserById(int id) {
-        userIsExists(id);
+    public User getById(int id) {
+        isExists(id);
         return userStorage.getUser(id);
     }
 
-    public User updateUser(User user) {
-        userIsExists(user.getId());
-        if (userValidation(user)) {
+    public User update(User user) {
+        isExists(user.getId());
+        if (validation(user)) {
             userStorage.addUser(user);
             log.info("Updated user id: {}", user.getId());
         }
         return user;
     }
 
-    public List<User> getAllUsers() {
+    public List<User> getAll() {
         return new ArrayList<>(userStorage.getAllUsers());
     }
 
     public void addFriend(int id, int friendId) {
-        userIsExists(id);
-        userIsExists(friendId);
+        isExists(id);
+        isExists(friendId);
 
         userStorage.getUser(id).getFriendsIDs().add(friendId);
         userStorage.getUser(friendId).getFriendsIDs().add(id);
     }
 
     public void deleteFriend(int id, int friendId) {
-        userIsExists(id);
-        userIsExists(friendId);
+        isExists(id);
+        isExists(friendId);
 
         userStorage.getUser(id).getFriendsIDs().remove(friendId);
         userStorage.getUser(friendId).getFriendsIDs().remove(id);
     }
 
     public List<User> getAllFriends(int id) {
-        userIsExists(id);
+        isExists(id);
 
         return userStorage.getUser(id).getFriendsIDs().stream()
                 .map(userStorage::getUser)
@@ -86,14 +85,14 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    public void userIsExists(int id) {
+    public void isExists(int id) {
         if (!userStorage.userIsExist(id)) {
             log.warn(String.format("User with id: %d doesn't exist!", id));
             throw new ResourceNotFoundException(String.format("User with id: %d doesn't exist!", id));
         }
     }
 
-    private boolean userValidation(User user) {
+    private boolean validation(User user) {
         if (user.getName().isEmpty()) {
             user.setName(user.getLogin());
         }

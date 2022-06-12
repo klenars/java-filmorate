@@ -30,8 +30,8 @@ public class FilmService {
         this.userService = userService;
     }
 
-    public Film addFilm(Film film) {
-        if (filmValidation(film)) {
+    public Film add(Film film) {
+        if (validation(film)) {
             int id = idForFilms++;
             film.setId(id);
             filmStorage.addFilm(film);
@@ -40,54 +40,54 @@ public class FilmService {
         return film;
     }
 
-    public Film getFilmById(int id) {
-        filmIsExists(id);
+    public Film getById(int id) {
+        isExists(id);
 
         return filmStorage.getFilm(id);
     }
 
-    public Film updateFilm(Film film) {
-        filmIsExists(film.getId());
+    public Film update(Film film) {
+        isExists(film.getId());
 
-        if (filmValidation(film)) {
+        if (validation(film)) {
             filmStorage.addFilm(film);
             log.info("Updated film id: {}", film.getId());
         }
         return film;
     }
 
-    public List<Film> getAllFilms() {
+    public List<Film> getAll() {
         return filmStorage.getAllFilms();
     }
 
     public void addLike(int id, int userId) {
-        filmIsExists(id);
+        isExists(id);
 
         filmStorage.getFilm(id).getIdUsersWhoLiked().add(userId);
     }
 
     public void deleteLike(int id, int userId) {
-        filmIsExists(id);
-        userService.userIsExists(userId);
+        isExists(id);
+        userService.isExists(userId);
 
         filmStorage.getFilm(id).getIdUsersWhoLiked().remove(userId);
     }
 
-    public List<Film> getPopularFilms(int count) {
+    public List<Film> getPopular(int count) {
         return filmStorage.getAllFilms().stream()
                 .sorted(Comparator.comparingInt(Film::likesQuantity).reversed())
                 .limit(count)
                 .collect(Collectors.toList());
     }
 
-    private void filmIsExists(int id) {
+    private void isExists(int id) {
         if (!filmStorage.filmIsExist(id)) {
             log.warn(String.format("Film with id: %d doesn't exist!", id));
             throw new ResourceNotFoundException(String.format("Film with id: %d doesn't exist!", id));
         }
     }
 
-    private boolean filmValidation(Film film) {
+    private boolean validation(Film film) {
         String errorMessage = null;
 
         if (film.getName().isBlank()) {
