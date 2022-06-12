@@ -58,16 +58,16 @@ public class UserService {
         userIsExists(id);
         userIsExists(friendId);
 
-        userStorage.getUser(id).addFriend(friendId);
-        userStorage.getUser(friendId).addFriend(id);
+        userStorage.getUser(id).getFriendsIDs().add(friendId);
+        userStorage.getUser(friendId).getFriendsIDs().add(id);
     }
 
     public void deleteFriend(int id, int friendId) {
         userIsExists(id);
         userIsExists(friendId);
 
-        userStorage.getUser(id).deleteFriend(friendId);
-        userStorage.getUser(friendId).deleteFriend(id);
+        userStorage.getUser(id).getFriendsIDs().remove(friendId);
+        userStorage.getUser(friendId).getFriendsIDs().remove(id);
     }
 
     public List<User> getAllFriends(int id) {

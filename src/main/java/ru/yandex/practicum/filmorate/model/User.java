@@ -5,6 +5,7 @@ import lombok.Data;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Past;
+import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
@@ -18,18 +19,11 @@ public class User {
     private String email;
 
     @NotBlank
+    @Pattern(regexp = "^\\S*$")
     private String login;
 
     private String name;
 
     @Past
     private LocalDate birthday;
-
-    public void addFriend(int friendId) {
-        friendsIDs.add(friendId);
-    }
-
-    public void deleteFriend(int friendId) {
-        friendsIDs.remove(friendId);
-    }
 }

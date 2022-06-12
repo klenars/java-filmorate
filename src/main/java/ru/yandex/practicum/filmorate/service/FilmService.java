@@ -63,14 +63,14 @@ public class FilmService {
     public void addLike(int id, int userId) {
         filmIsExists(id);
 
-        filmStorage.getFilm(id).addLike(userId);
+        filmStorage.getFilm(id).getIdUsersWhoLiked().add(userId);
     }
 
     public void deleteLike(int id, int userId) {
         filmIsExists(id);
         userService.userIsExists(userId);
 
-        filmStorage.getFilm(id).deleteLike(userId);
+        filmStorage.getFilm(id).getIdUsersWhoLiked().remove(userId);
     }
 
     public List<Film> getPopularFilms(int count) {

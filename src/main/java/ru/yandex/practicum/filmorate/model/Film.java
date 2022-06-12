@@ -25,14 +25,6 @@ public class Film {
     @Positive
     private int duration;
 
-    public void addLike(int userId) {
-        idUsersWhoLiked.add(userId);
-    }
-
-    public void deleteLike(int userId) {
-        idUsersWhoLiked.remove(userId);
-    }
-
     public int likesQuantity() {
         return idUsersWhoLiked.size();
     }
