@@ -21,18 +21,18 @@ class UserControllerTest {
         user.setLogin("TestUser");
         user.setEmail("123mail.ru");
         user.setBirthday(LocalDate.of(1984, 7, 15));
-        assertThrows(ValidationException.class, () -> userController.addUser(user));
+        assertThrows(ValidationException.class, () -> userController.add(user));
 
         user.setEmail("123@mail.ru");
         user.setLogin("Test User");
-        assertThrows(ValidationException.class, () -> userController.addUser(user));
+        assertThrows(ValidationException.class, () -> userController.add(user));
 
         user.setLogin("TestUser");
         user.setBirthday(LocalDate.of(2023, 1, 1));
-        assertThrows(ValidationException.class, () -> userController.addUser(user));
+        assertThrows(ValidationException.class, () -> userController.add(user));
 
         user.setBirthday(LocalDate.of(2020, 1, 1));
-        assertDoesNotThrow(() -> userController.addUser(user));
+        assertDoesNotThrow(() -> userController.add(user));
     }
 
     @Test
@@ -40,6 +40,6 @@ class UserControllerTest {
         User user = new User();
         user.setId(-1);
 
-        assertThrows(ResourceNotFoundException.class, () -> userController.updateUser(user));
+        assertThrows(ResourceNotFoundException.class, () -> userController.update(user));
     }
 }

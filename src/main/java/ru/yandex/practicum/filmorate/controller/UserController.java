@@ -21,22 +21,22 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public User getUserById(@PathVariable int id) {
+    public User getById(@PathVariable int id) {
         return userService.getById(id);
     }
 
     @PostMapping
-    public User addUser(@Valid @RequestBody User user) {
+    public User add(@Valid @RequestBody User user) {
         return userService.add(user);
     }
 
     @PutMapping
-    public User updateUser(@Valid @RequestBody User user) {
+    public User update(@Valid @RequestBody User user) {
         return userService.update(user);
     }
 
     @GetMapping
-    public List<User> getAllUsers() {
+    public List<User> getAll() {
         return userService.getAll();
     }
 
@@ -57,7 +57,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}/friends")
-    public List<User> getAllFriendsByUserId(
+    public List<User> getAllFriendsById(
             @PathVariable int id
     ) {
         return userService.getAllFriends(id);

@@ -22,22 +22,22 @@ public class FilmController {
     }
 
     @GetMapping("/{id}")
-    public Film getFilmById(@PathVariable int id) {
+    public Film getById(@PathVariable int id) {
         return filmService.getById(id);
     }
 
     @PostMapping
-    public Film addFilm(@Valid @RequestBody Film film) {
+    public Film add(@Valid @RequestBody Film film) {
         return filmService.add(film);
     }
 
     @PutMapping
-    public Film updateFilm(@Valid @RequestBody Film film) {
+    public Film update(@Valid @RequestBody Film film) {
         return filmService.update(film);
     }
 
     @GetMapping
-    public List<Film> getAllFilms() {
+    public List<Film> getAll() {
         return filmService.getAll();
     }
 
@@ -58,7 +58,7 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public List<Film> getPopularFilms(
+    public List<Film> getPopular(
             @RequestParam(defaultValue = "10") String count
     ) {
         return filmService.getPopular(Integer.parseInt(count));

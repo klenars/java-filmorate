@@ -28,18 +28,18 @@ class FilmControllerTest {
         film.setDescription("TestDescription");
         film.setReleaseDate(LocalDate.of(1895, 12, 27));
         film.setDuration(90);
-        assertThrows(ValidationException.class, () -> filmController.addFilm(film));
+        assertThrows(ValidationException.class, () -> filmController.add(film));
 
         film.setReleaseDate(LocalDate.of(1895, 12, 28));
         film.setDuration(-123);
-        assertThrows(ValidationException.class, () -> filmController.addFilm(film));
+        assertThrows(ValidationException.class, () -> filmController.add(film));
 
         film.setDuration(60);
         film.setName("");
-        assertThrows(ValidationException.class, () -> filmController.addFilm(film));
+        assertThrows(ValidationException.class, () -> filmController.add(film));
 
         film.setName("TestFilm");
-        assertDoesNotThrow(() -> filmController.addFilm(film));
+        assertDoesNotThrow(() -> filmController.add(film));
 
     }
 
@@ -48,6 +48,6 @@ class FilmControllerTest {
         Film film = new Film();
         film.setId(-1);
 
-        assertThrows(ResourceNotFoundException.class, () -> filmController.updateFilm(film));
+        assertThrows(ResourceNotFoundException.class, () -> filmController.update(film));
     }
 }
