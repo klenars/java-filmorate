@@ -13,22 +13,27 @@ public class InMemoryUserStorage implements UserStorage {
     private final Map<Integer, User> users = new HashMap<>();
 
     @Override
-    public void addUser(User user) {
+    public void add(User user) {
         users.put(user.getId(), user);
     }
 
     @Override
-    public User getUser(int id) {
+    public User get(int id) {
         return users.get(id);
     }
 
     @Override
-    public boolean userIsExist(int id) {
+    public boolean isExists(int id) {
         return users.containsKey(id);
     }
 
     @Override
-    public List<User> getAllUsers() {
+    public List<User> getAll() {
         return new ArrayList<>(users.values());
+    }
+
+    @Override
+    public void delete(User user) {
+        users.remove(user.getId());
     }
 }

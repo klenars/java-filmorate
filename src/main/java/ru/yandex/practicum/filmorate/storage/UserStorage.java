@@ -6,11 +6,13 @@ import java.util.List;
 
 public interface UserStorage {
 
-    void addUser(User user);
+    void add(User user);
 
-    User getUser(int id);
+    void delete(User user);
 
-    boolean userIsExist(int id);
+    User get(int id);
 
-    List<User> getAllUsers();
+    boolean isExists(int id);
+
+    List<User> getAll();
 }

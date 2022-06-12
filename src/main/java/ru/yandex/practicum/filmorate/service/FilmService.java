@@ -34,7 +34,7 @@ public class FilmService {
         if (validation(film)) {
             int id = idForFilms++;
             film.setId(id);
-            filmStorage.addFilm(film);
+            filmStorage.add(film);
             log.info("Added film name: {}, id: {}", film.getName(), film.getId());
         }
         return film;
@@ -43,45 +43,45 @@ public class FilmService {
     public Film getById(int id) {
         isExists(id);
 
-        return filmStorage.getFilm(id);
+        return filmStorage.get(id);
     }
 
     public Film update(Film film) {
         isExists(film.getId());
 
         if (validation(film)) {
-            filmStorage.addFilm(film);
+            filmStorage.add(film);
             log.info("Updated film id: {}", film.getId());
         }
         return film;
     }
 
     public List<Film> getAll() {
-        return filmStorage.getAllFilms();
+        return filmStorage.getAll();
     }
 
     public void addLike(int id, int userId) {
         isExists(id);
 
-        filmStorage.getFilm(id).getIdUsersWhoLiked().add(userId);
+        filmStorage.get(id).getIdUsersWhoLiked().add(userId);
     }
 
     public void deleteLike(int id, int userId) {
         isExists(id);
         userService.isExists(userId);
 
-        filmStorage.getFilm(id).getIdUsersWhoLiked().remove(userId);
+        filmStorage.get(id).getIdUsersWhoLiked().remove(userId);
     }
 
     public List<Film> getPopular(int count) {
-        return filmStorage.getAllFilms().stream()
+        return filmStorage.getAll().stream()
                 .sorted(Comparator.comparingInt(Film::likesQuantity).reversed())
                 .limit(count)
                 .collect(Collectors.toList());
     }
 
     private void isExists(int id) {
-        if (!filmStorage.filmIsExist(id)) {
+        if (!filmStorage.isExist(id)) {
             log.warn(String.format("Film with id: %d doesn't exist!", id));
             throw new ResourceNotFoundException(String.format("Film with id: %d doesn't exist!", id));
         }

@@ -14,23 +14,27 @@ public class InMemoryFilmStorage implements FilmStorage{
     private final Map<Integer, Film> films = new HashMap<>();
 
     @Override
-    public void addFilm(Film film) {
+    public void add(Film film) {
         films.put(film.getId(), film);
     }
 
     @Override
-    public Film getFilm(int id) {
+    public Film get(int id) {
         return films.get(id);
     }
 
     @Override
-    public boolean filmIsExist(int id) {
+    public boolean isExist(int id) {
         return films.containsKey(id);
     }
 
     @Override
-    public List<Film> getAllFilms() {
+    public List<Film> getAll() {
         return new ArrayList<>(films.values());
     }
 
+    @Override
+    public void delete(Film film) {
+        films.remove(film.getId());
+    }
 }

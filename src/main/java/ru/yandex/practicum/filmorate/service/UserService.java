@@ -29,7 +29,7 @@ public class UserService {
         if (validation(user)) {
             int id = idForUsers++;
             user.setId(id);
-            userStorage.addUser(user);
+            userStorage.add(user);
             log.info("Added user name: {}, id: {}", user.getName(), user.getId());
         }
         return user;
@@ -37,56 +37,56 @@ public class UserService {
 
     public User getById(int id) {
         isExists(id);
-        return userStorage.getUser(id);
+        return userStorage.get(id);
     }
 
     public User update(User user) {
         isExists(user.getId());
         if (validation(user)) {
-            userStorage.addUser(user);
+            userStorage.add(user);
             log.info("Updated user id: {}", user.getId());
         }
         return user;
     }
 
     public List<User> getAll() {
-        return new ArrayList<>(userStorage.getAllUsers());
+        return new ArrayList<>(userStorage.getAll());
     }
 
     public void addFriend(int id, int friendId) {
         isExists(id);
         isExists(friendId);
 
-        userStorage.getUser(id).getFriendsIDs().add(friendId);
-        userStorage.getUser(friendId).getFriendsIDs().add(id);
+        userStorage.get(id).getFriendsIDs().add(friendId);
+        userStorage.get(friendId).getFriendsIDs().add(id);
     }
 
     public void deleteFriend(int id, int friendId) {
         isExists(id);
         isExists(friendId);
 
-        userStorage.getUser(id).getFriendsIDs().remove(friendId);
-        userStorage.getUser(friendId).getFriendsIDs().remove(id);
+        userStorage.get(id).getFriendsIDs().remove(friendId);
+        userStorage.get(friendId).getFriendsIDs().remove(id);
     }
 
     public List<User> getAllFriends(int id) {
         isExists(id);
 
-        return userStorage.getUser(id).getFriendsIDs().stream()
-                .map(userStorage::getUser)
+        return userStorage.get(id).getFriendsIDs().stream()
+                .map(userStorage::get)
                 .collect(Collectors.toList());
     }
 
     public List<User> getCommonFriends(int id, int otherId) {
 
-        return userStorage.getUser(id).getFriendsIDs().stream()
-                .filter(friendId -> userStorage.getUser(otherId).getFriendsIDs().contains(friendId))
-                .map(userStorage::getUser)
+        return userStorage.get(id).getFriendsIDs().stream()
+                .filter(friendId -> userStorage.get(otherId).getFriendsIDs().contains(friendId))
+                .map(userStorage::get)
                 .collect(Collectors.toList());
     }
 
     public void isExists(int id) {
-        if (!userStorage.userIsExist(id)) {
+        if (!userStorage.isExists(id)) {
             log.warn(String.format("User with id: %d doesn't exist!", id));
             throw new ResourceNotFoundException(String.format("User with id: %d doesn't exist!", id));
         }

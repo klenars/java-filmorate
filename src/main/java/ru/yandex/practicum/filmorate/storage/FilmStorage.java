@@ -6,11 +6,13 @@ import java.util.List;
 
 public interface FilmStorage {
 
-    void addFilm(Film film);
+    void add(Film film);
 
-    Film getFilm(int id);
+    void delete(Film film);
 
-    boolean filmIsExist(int id);
+    Film get(int id);
 
-    List<Film> getAllFilms();
+    boolean isExist(int id);
+
+    List<Film> getAll();
 }
