@@ -1,75 +1,73 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    private int idForUsers = 1;
-    private final Map<Integer, User> users = new HashMap<>();
+    private final UserService userService;
+
+    @Autowired
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
+    @GetMapping("/{id}")
+    public User getById(@PathVariable int id) {
+        return userService.getById(id);
+    }
 
     @PostMapping
-    public User addUser(@Valid @RequestBody User user) {
-        int id = idForUsers++;
-        user.setId(id);
-
-        if (userValidation(user)) {
-            users.put(id, user);
-            log.info("Added user name: {}, id: {}", user.getName(), user.getId());
-        }
-        return user;
+    public User add(@Valid @RequestBody User user) {
+        return userService.add(user);
     }
 
     @PutMapping
-    public User updateUser(@Valid @RequestBody User user) {
-        int id = user.getId();
-        if (!users.containsKey(id)) {
-            log.warn("Unknown ID for update user!");
-            throw new ValidationException("Unknown ID for update user!");
-        }
-        if (userValidation(user)) {
-            users.put(id, user);
-            log.info("Updated user id: {}", user.getId());
-        }
-        return user;
+    public User update(@Valid @RequestBody User user) {
+        return userService.update(user);
     }
 
     @GetMapping
-    public List<User> getAllFilms() {
-        return new ArrayList<>(users.values());
+    public List<User> getAll() {
+        return userService.getAll();
     }
 
-    private boolean userValidation(User user) {
-        if (user.getName().isEmpty()) {
-            user.setName(user.getLogin());
-        }
+    @PutMapping("/{id}/friends/{friendId}")
+    public void addFriend(
+            @PathVariable int id,
+            @PathVariable int friendId
+    ) {
+        userService.addFriend(id, friendId);
+    }
 
-        String errorMessage = null;
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public void deleteFriend(
+            @PathVariable int id,
+            @PathVariable int friendId
+    ) {
+        userService.deleteFriend(id, friendId);
+    }
 
-        if (user.getEmail().isBlank() || !user.getEmail().contains("@")) {
-            errorMessage = "E-mail is wrong!";
-        } else if (user.getLogin().isBlank() || user.getLogin().contains(" ")) {
-            errorMessage = "Login is wrong!";
-        } else if (user.getBirthday().isAfter(LocalDate.now())) {
-            errorMessage = "Birthday can't be in the future!";
-        }
+    @GetMapping("/{id}/friends")
+    public List<User> getAllFriendsById(
+            @PathVariable int id
+    ) {
+        return userService.getAllFriends(id);
+    }
 
-        if (errorMessage != null) {
-            log.warn(errorMessage);
-            throw new ValidationException(errorMessage);
-        } else {
-            return true;
-        }
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public List<User> getCommonFriends(
+            @PathVariable int id,
+            @PathVariable int otherId
+    ) {
+        return userService.getCommonFriends(id, otherId);
     }
 }

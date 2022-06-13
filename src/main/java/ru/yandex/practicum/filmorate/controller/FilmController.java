@@ -1,73 +1,66 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @RestController
 @RequestMapping("/films")
 public class FilmController {
-    private int idForFilms = 1;
-    private final Map<Integer, Film> films = new HashMap<>();
+
+    private final FilmService filmService;
+
+    @Autowired
+    public FilmController(FilmService filmService) {
+        this.filmService = filmService;
+    }
+
+    @GetMapping("/{id}")
+    public Film getById(@PathVariable int id) {
+        return filmService.getById(id);
+    }
 
     @PostMapping
-    public Film addFilm(@Valid @RequestBody Film film) {
-        int id = idForFilms++;
-        film.setId(id);
-
-        if (filmValidation(film)) {
-            films.put(id, film);
-            log.info("Added film name: {}, id: {}", film.getName(), film.getId());
-        }
-        return film;
+    public Film add(@Valid @RequestBody Film film) {
+        return filmService.add(film);
     }
 
     @PutMapping
-    public Film updateFilm(@Valid @RequestBody Film film) {
-        int id = film.getId();
-        if (!films.containsKey(id)){
-            log.warn("Unknown ID for update film!");
-            throw new ValidationException("Unknown ID for update film!");
-        }
-        if (filmValidation(film)) {
-            films.put(id, film);
-            log.info("Updated film id: {}", film.getId());
-        }
-        return film;
+    public Film update(@Valid @RequestBody Film film) {
+        return filmService.update(film);
     }
 
     @GetMapping
-    public List<Film> getAllFilms() {
-        return new ArrayList<>(films.values());
+    public List<Film> getAll() {
+        return filmService.getAll();
     }
 
-    private boolean filmValidation(Film film) {
-        String errorMessage = null;
+    @PutMapping("/{id}/like/{userId}")
+    public void addLike(
+            @PathVariable int id,
+            @PathVariable int userId
+    ) {
+        filmService.addLike(id, userId);
+    }
 
-        if (film.getName().isBlank()) {
-            errorMessage = "Name is empty!";
-        } else if (film.getDescription().length() > 200) {
-            errorMessage = "Description is more than 200 characters!";
-        } else if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
-            errorMessage = "Release date can't be earlier than 28-12-1895!";
-        } else if (film.getDuration() < 0) {
-            errorMessage = "Duration can't be negative!";
-        }
+    @DeleteMapping("/{id}/like/{userId}")
+    public void deleteLike(
+            @PathVariable int id,
+            @PathVariable int userId
+    ) {
+        filmService.deleteLike(id, userId);
+    }
 
-        if (errorMessage != null) {
-            log.warn(errorMessage);
-            throw new ValidationException(errorMessage);
-        } else {
-            return true;
-        }
+    @GetMapping("/popular")
+    public List<Film> getPopular(
+            @RequestParam(defaultValue = "10") String count
+    ) {
+        return filmService.getPopular(Integer.parseInt(count));
     }
 }

@@ -1,15 +1,18 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import org.junit.jupiter.api.Test;
+import ru.yandex.practicum.filmorate.exception.ResourceNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class UserControllerTest {
-    static UserController userController = new UserController();
+    static UserController userController = new UserController(new UserService(new InMemoryUserStorage()));
 
     @Test
     void addUser() {
@@ -18,18 +21,18 @@ class UserControllerTest {
         user.setLogin("TestUser");
         user.setEmail("123mail.ru");
         user.setBirthday(LocalDate.of(1984, 7, 15));
-        assertThrows(ValidationException.class, () -> userController.addUser(user));
+        assertThrows(ValidationException.class, () -> userController.add(user));
 
         user.setEmail("123@mail.ru");
         user.setLogin("Test User");
-        assertThrows(ValidationException.class, () -> userController.addUser(user));
+        assertThrows(ValidationException.class, () -> userController.add(user));
 
         user.setLogin("TestUser");
         user.setBirthday(LocalDate.of(2023, 1, 1));
-        assertThrows(ValidationException.class, () -> userController.addUser(user));
+        assertThrows(ValidationException.class, () -> userController.add(user));
 
         user.setBirthday(LocalDate.of(2020, 1, 1));
-        assertDoesNotThrow(() -> userController.addUser(user));
+        assertDoesNotThrow(() -> userController.add(user));
     }
 
     @Test
@@ -37,6 +40,6 @@ class UserControllerTest {
         User user = new User();
         user.setId(-1);
 
-        assertThrows(ValidationException.class, () -> userController.updateUser(user));
+        assertThrows(ResourceNotFoundException.class, () -> userController.update(user));
     }
 }
