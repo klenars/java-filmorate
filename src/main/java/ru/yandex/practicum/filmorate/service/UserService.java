@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ResourceNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -17,21 +18,22 @@ import java.util.stream.Collectors;
 @Service
 public class UserService {
 
-    private static int idForUsers = 1;
+    //private static int idForUsers = 1;
     private final UserStorage userStorage;
 
     @Autowired
-    public UserService(UserStorage userStorage) {
+    public UserService(@Qualifier("userDbStorage") UserStorage userStorage) {
         this.userStorage = userStorage;
     }
 
     public User add(User user) {
-        if (validation(user)) {
-            int id = idForUsers++;
-            user.setId(id);
-            userStorage.add(user);
-            log.info("Added user name: {}, id: {}", user.getName(), user.getId());
-        }
+        validation(user);
+//            int id = idForUsers++;
+//            user.setId(id);
+        userStorage.add(user);
+        log.info("Added user name: {}, id: {}", user.getName(), user.getId());
+
+        //TODO: Сделать возврат юзера с присвоенным id из БД
         return user;
     }
 
@@ -42,10 +44,9 @@ public class UserService {
 
     public User update(User user) {
         isExists(user.getId());
-        if (validation(user)) {
-            userStorage.add(user);
-            log.info("Updated user id: {}", user.getId());
-        }
+        validation(user);
+        userStorage.add(user);
+        log.info("Updated user id: {}", user.getId());
         return user;
     }
 
