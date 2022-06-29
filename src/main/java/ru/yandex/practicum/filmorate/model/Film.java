@@ -12,6 +12,7 @@ import java.util.Set;
 @Data
 public class Film {
     private int id;
+
     private Set<Integer> idUsersWhoLiked = new HashSet<>();
 
     @NotBlank
@@ -24,6 +25,10 @@ public class Film {
 
     @Positive
     private int duration;
+
+    private FilmRate rate;
+
+    private Set<FilmGenre> genres = new HashSet<>();
 
     public int likesQuantity() {
         return idUsersWhoLiked.size();

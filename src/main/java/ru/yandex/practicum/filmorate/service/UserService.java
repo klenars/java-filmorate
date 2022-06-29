@@ -57,8 +57,9 @@ public class UserService {
         isExists(id);
         isExists(friendId);
 
-        userStorage.get(id).getFriendsIDs().add(friendId);
-        userStorage.get(friendId).getFriendsIDs().add(id);
+//        TODO: Изменить логику добавления в друзья
+//        userStorage.get(id).getFriendsIDs().add(friendId);
+//        userStorage.get(friendId).getFriendsIDs().add(id);
     }
 
     public void deleteFriend(int id, int friendId) {
@@ -72,15 +73,17 @@ public class UserService {
     public List<User> getAllFriends(int id) {
         isExists(id);
 
-        return userStorage.get(id).getFriendsIDs().stream()
+        //TODO: Проверить логику после изменения френдов на мапу
+        return userStorage.get(id).getFriendsIDs().keySet().stream()
                 .map(userStorage::get)
                 .collect(Collectors.toList());
     }
 
     public List<User> getCommonFriends(int id, int otherId) {
 
-        return userStorage.get(id).getFriendsIDs().stream()
-                .filter(friendId -> userStorage.get(otherId).getFriendsIDs().contains(friendId))
+        //TODO: Проверить логику после изменения френдов на мапу
+        return userStorage.get(id).getFriendsIDs().keySet().stream()
+                .filter(friendId -> userStorage.get(otherId).getFriendsIDs().containsKey(friendId))
                 .map(userStorage::get)
                 .collect(Collectors.toList());
     }
