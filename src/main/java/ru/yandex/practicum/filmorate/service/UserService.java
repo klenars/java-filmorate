@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 @Service
 public class UserService {
 
-    //private static int idForUsers = 1;
     private final UserStorage userStorage;
 
     @Autowired
@@ -28,12 +27,8 @@ public class UserService {
 
     public User add(User user) {
         validation(user);
-//            int id = idForUsers++;
-//            user.setId(id);
         userStorage.add(user);
         log.info("Added user name: {}, id: {}", user.getName(), user.getId());
-
-        //TODO: Сделать возврат юзера с присвоенным id из БД
         return user;
     }
 
@@ -43,6 +38,7 @@ public class UserService {
     }
 
     public User update(User user) {
+        // TODO: Добавить логику обновленя юзера в БД по id
         isExists(user.getId());
         validation(user);
         userStorage.add(user);

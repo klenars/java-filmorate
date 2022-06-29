@@ -17,14 +17,11 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public User add(User user) {
+    public void add(User user) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("users")
                 .usingGeneratedKeyColumns("user_id");
-
         user.setId(simpleJdbcInsert.executeAndReturnKey(user.toMap()).intValue());
-
-        return user;
     }
 
     @Override
