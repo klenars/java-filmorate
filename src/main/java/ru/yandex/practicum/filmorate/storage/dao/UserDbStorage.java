@@ -6,6 +6,8 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
 @Repository("userDbStorage")
@@ -25,18 +27,51 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public void delete(User user) {
+    public void update(User user) {
+        String sqlQuery = "UPDATE users " +
+                "SET login = ?, email = ?, name = ?, birthday = ? " +
+                "WHERE user_id = ?";
 
+        jdbcTemplate.update(sqlQuery,
+                user.getLogin(),
+                user.getEmail(),
+                user.getName(),
+                user.getBirthday(),
+                user.getId());
     }
 
     @Override
     public User get(int id) {
-        return null;
+        String sqlQuery = "SELECT user_id, login, email, name, birthday " +
+                "FROM users " +
+                "WHERE user_id = ?";
+
+        return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToUser, id);
+    }
+
+    private User mapRowToUser(ResultSet resultSet, int i) throws SQLException {
+        User user = new User();
+        user.setId(resultSet.getInt("user_id"));
+        user.setName(resultSet.getString("name"));
+        user.setLogin(resultSet.getString("login"));
+        user.setEmail(resultSet.getString("email"));
+        user.setBirthday(resultSet.getDate("birthday").toLocalDate());
+
+        return user;
     }
 
     @Override
     public boolean isExists(int id) {
-        return false;
+        String sqlQuery = "SELECT user_id " +
+                "FROM users " +
+                "WHERE user_id = ?";
+
+        return jdbcTemplate.queryForRowSet(sqlQuery, id).next();
+    }
+
+    @Override
+    public void delete(User user) {
+
     }
 
     @Override

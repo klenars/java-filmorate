@@ -38,12 +38,11 @@ public class UserService {
     }
 
     public User update(User user) {
-        // TODO: Добавить логику обновленя юзера в БД по id
         isExists(user.getId());
         validation(user);
-        userStorage.add(user);
+        userStorage.update(user);
         log.info("Updated user id: {}", user.getId());
-        return user;
+        return getById(user.getId());
     }
 
     public List<User> getAll() {
