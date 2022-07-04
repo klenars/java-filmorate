@@ -49,17 +49,6 @@ public class UserDbStorage implements UserStorage {
         return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToUser, id);
     }
 
-    private User mapRowToUser(ResultSet resultSet, int i) throws SQLException {
-        User user = new User();
-        user.setId(resultSet.getInt("user_id"));
-        user.setName(resultSet.getString("name"));
-        user.setLogin(resultSet.getString("login"));
-        user.setEmail(resultSet.getString("email"));
-        user.setBirthday(resultSet.getDate("birthday").toLocalDate());
-
-        return user;
-    }
-
     @Override
     public boolean isExists(int id) {
         String sqlQuery = "SELECT user_id " +
@@ -71,11 +60,26 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public void delete(User user) {
-
+        String sqlQuery = "DELETE FROM users WHERE user_id = ?";
+        jdbcTemplate.update(sqlQuery, user.getId());
     }
 
     @Override
     public List<User> getAll() {
-        return null;
+        String sqlQuery = "SELECT * " +
+                "FROM users";
+
+        return jdbcTemplate.query(sqlQuery, this::mapRowToUser);
+    }
+
+    private User mapRowToUser(ResultSet resultSet, int i) throws SQLException {
+        User user = new User();
+        user.setId(resultSet.getInt("user_id"));
+        user.setName(resultSet.getString("name"));
+        user.setLogin(resultSet.getString("login"));
+        user.setEmail(resultSet.getString("email"));
+        user.setBirthday(resultSet.getDate("birthday").toLocalDate());
+
+        return user;
     }
 }

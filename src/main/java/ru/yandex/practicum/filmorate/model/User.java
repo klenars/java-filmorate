@@ -14,8 +14,6 @@ import java.util.Map;
 public class User {
     private int id;
 
-    private Map<Integer, Boolean> friendsIDs = new HashMap<>();
-
     @Email
     private String email;
 

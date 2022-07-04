@@ -49,6 +49,11 @@ public class UserService {
         return new ArrayList<>(userStorage.getAll());
     }
 
+    public void delete(User user) {
+        isExists(user.getId());
+        userStorage.delete(user);
+    }
+
     public void addFriend(int id, int friendId) {
         isExists(id);
         isExists(friendId);
