@@ -11,9 +11,7 @@ import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.dao.LikeDao;
 
 import java.time.LocalDate;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -51,7 +49,7 @@ public class FilmService {
         validation(film);
         filmStorage.update(film);
         log.info("Updated film id: {}", film.getId());
-        return getById(film.getId());
+        return film;
     }
 
     public List<Film> getAll() {
@@ -60,22 +58,20 @@ public class FilmService {
 
     public void addLike(int id, int userId) {
         isExists(id);
+        userService.isExists(userId);
 
-        filmStorage.get(id).getIdUsersWhoLiked().add(userId);
+        likeDao.addLike(id, userId);
     }
 
     public void deleteLike(int id, int userId) {
         isExists(id);
         userService.isExists(userId);
 
-        filmStorage.get(id).getIdUsersWhoLiked().remove(userId);
+        likeDao.deleteLike(id, userId);
     }
 
     public List<Film> getPopular(int count) {
-        return filmStorage.getAll().stream()
-                .sorted(Comparator.comparingInt(Film::likesQuantity).reversed())
-                .limit(count)
-                .collect(Collectors.toList());
+        return likeDao.getPopular(count);
     }
 
     private void isExists(int id) {

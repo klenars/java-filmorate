@@ -15,9 +15,13 @@ import java.util.List;
 @Repository("filmDbStorage")
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
+    private final GenreDao genreDao;
+    private final MpaDao mpaDao;
 
-    public FilmDbStorage(JdbcTemplate jdbcTemplate) {
+    public FilmDbStorage(JdbcTemplate jdbcTemplate, GenreDao genreDao, MpaDao mpaDao) {
         this.jdbcTemplate = jdbcTemplate;
+        this.genreDao = genreDao;
+        this.mpaDao = mpaDao;
     }
 
     @Override
@@ -27,7 +31,9 @@ public class FilmDbStorage implements FilmStorage {
                 .usingGeneratedKeyColumns("film_id");
         film.setId(simpleJdbcInsert.executeAndReturnKey(film.toMap()).intValue());
 
-        addGenreToFilm(film.getId(), film.getGenres());
+        if (film.getGenres() != null) {
+            addGenreToFilm(film.getId(), film.getGenres());
+        }
     }
 
     @Override
@@ -53,7 +59,9 @@ public class FilmDbStorage implements FilmStorage {
                 film.getMpa().getId(),
                 film.getId());
 
-        addGenreToFilm(film.getId(), film.getGenres());
+        if (film.getGenres() != null) {
+            addGenreToFilm(film.getId(), film.getGenres());
+        }
     }
 
     @Override
@@ -101,7 +109,7 @@ public class FilmDbStorage implements FilmStorage {
         jdbcTemplate.update(sqlQuery, filmId);
     }
 
-    private Film mapRowToFilm(ResultSet resultSet, int i) throws SQLException {
+    protected Film mapRowToFilm(ResultSet resultSet, int i) throws SQLException {
         Film film = new Film();
         film.setId(resultSet.getInt("film_id"));
         film.setName(resultSet.getString("name"));
@@ -119,15 +127,7 @@ public class FilmDbStorage implements FilmStorage {
                 "FROM mpa " +
                 "WHERE mpa_id = ?";
 
-        return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToMpa, mpaId);
-    }
-
-    private FilmRate mapRowToMpa(ResultSet resultSet, int i) throws SQLException {
-        FilmRate filmRate = new FilmRate();
-        filmRate.setId(resultSet.getInt("mpa_id"));
-        filmRate.setName(resultSet.getString("name"));
-
-        return filmRate;
+        return jdbcTemplate.queryForObject(sqlQuery, mpaDao::mapRowToMpa, mpaId);
     }
 
     private List<FilmGenre> getGenreList(int filmId) {
@@ -136,20 +136,11 @@ public class FilmDbStorage implements FilmStorage {
                 "LEFT JOIN film_genre AS fg ON g.genre_id = fg.genre_id " +
                 "WHERE fg.film_id = ?";
 
-       List<FilmGenre> genres = jdbcTemplate.query(sqlQuery, this::mapRowToGenre, filmId);
-       if (genres.isEmpty()) {
-           return null;
-       } else {
-           return genres;
-       }
-
-    }
-
-    private FilmGenre mapRowToGenre(ResultSet resultSet, int i) throws SQLException {
-        FilmGenre filmGenre = new FilmGenre();
-        filmGenre.setId(resultSet.getInt("genre_id"));
-        filmGenre.setName(resultSet.getString("name"));
-
-        return filmGenre;
+        List<FilmGenre> genres = jdbcTemplate.query(sqlQuery, genreDao::mapRowToGenre, filmId);
+        if (genres.isEmpty()) {
+            return null;
+        } else {
+            return genres;
+        }
     }
 }
