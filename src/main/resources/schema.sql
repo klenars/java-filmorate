@@ -34,9 +34,9 @@ CREATE TABLE IF NOT EXISTS user_friend
 (
     user_id      int,
     friend_id    int,
-    is_confirmed boolean,
     FOREIGN KEY (user_id) REFERENCES users (user_id),
-    FOREIGN KEY (friend_id) REFERENCES users (user_id)
+    FOREIGN KEY (friend_id) REFERENCES users (user_id),
+    UNIQUE (user_id, friend_id)
     );
 
 CREATE TABLE IF NOT EXISTS film_user_like

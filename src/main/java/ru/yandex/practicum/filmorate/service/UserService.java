@@ -8,21 +8,23 @@ import ru.yandex.practicum.filmorate.exception.ResourceNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.dao.FriendshipDao;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class UserService {
 
     private final UserStorage userStorage;
+    private final FriendshipDao friendshipDao;
 
     @Autowired
-    public UserService(@Qualifier("userDbStorage") UserStorage userStorage) {
+    public UserService(@Qualifier("userDbStorage") UserStorage userStorage, FriendshipDao friendshipDao) {
         this.userStorage = userStorage;
+        this.friendshipDao = friendshipDao;
     }
 
     public User add(User user) {
@@ -58,35 +60,27 @@ public class UserService {
         isExists(id);
         isExists(friendId);
 
-//        TODO: Изменить логику добавления в друзья
-//        userStorage.get(id).getFriendsIDs().add(friendId);
-//        userStorage.get(friendId).getFriendsIDs().add(id);
+        friendshipDao.addFriend(id, friendId);
     }
 
     public void deleteFriend(int id, int friendId) {
         isExists(id);
         isExists(friendId);
 
-        userStorage.get(id).getFriendsIDs().remove(friendId);
-        userStorage.get(friendId).getFriendsIDs().remove(id);
+        friendshipDao.deleteFriend(id, friendId);
     }
 
     public List<User> getAllFriends(int id) {
         isExists(id);
 
-        //TODO: Проверить логику после изменения френдов на мапу
-        return userStorage.get(id).getFriendsIDs().keySet().stream()
-                .map(userStorage::get)
-                .collect(Collectors.toList());
+        return friendshipDao.getAllFriends(id);
     }
 
     public List<User> getCommonFriends(int id, int otherId) {
+        isExists(id);
+        isExists(otherId);
 
-        //TODO: Проверить логику после изменения френдов на мапу
-        return userStorage.get(id).getFriendsIDs().keySet().stream()
-                .filter(friendId -> userStorage.get(otherId).getFriendsIDs().containsKey(friendId))
-                .map(userStorage::get)
-                .collect(Collectors.toList());
+        return friendshipDao.getCommonFriends(id, otherId);
     }
 
     public void isExists(int id) {
@@ -96,7 +90,7 @@ public class UserService {
         }
     }
 
-    private boolean validation(User user) {
+    private void validation(User user) {
         if (user.getName().isEmpty()) {
             user.setName(user.getLogin());
         }
@@ -114,8 +108,6 @@ public class UserService {
         if (errorMessage != null) {
             log.warn(errorMessage);
             throw new ValidationException(errorMessage);
-        } else {
-            return true;
         }
     }
 
