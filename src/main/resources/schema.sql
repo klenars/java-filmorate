@@ -7,13 +7,21 @@ CREATE TABLE IF NOT EXISTS users
     birthday date
 );
 
+CREATE TABLE IF NOT EXISTS mpa
+(
+    mpa_id int PRIMARY KEY AUTO_INCREMENT,
+    name varchar
+);
+
 CREATE TABLE IF NOT EXISTS film
 (
     film_id      int PRIMARY KEY AUTO_INCREMENT,
     name         varchar,
+    description varchar,
     release_date date,
     duration     int,
-    rate         varchar(11)
+    mpa         int,
+    FOREIGN KEY (mpa) REFERENCES mpa (mpa_id)
     );
 
 CREATE TABLE IF NOT EXISTS genre
@@ -27,7 +35,8 @@ CREATE TABLE IF NOT EXISTS film_genre
     film_id  int,
     genre_id int,
     FOREIGN KEY (film_id) REFERENCES film (film_id),
-    FOREIGN KEY (genre_id) REFERENCES genre (genre_id)
+    FOREIGN KEY (genre_id) REFERENCES genre (genre_id),
+    UNIQUE (film_id, genre_id)
     );
 
 CREATE TABLE IF NOT EXISTS user_friend

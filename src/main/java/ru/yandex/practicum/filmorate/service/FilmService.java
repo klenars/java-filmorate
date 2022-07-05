@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.exception.ResourceNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.dao.LikeDao;
 
 import java.time.LocalDate;
 import java.util.Comparator;
@@ -20,14 +21,17 @@ public class FilmService {
 
     private final FilmStorage filmStorage;
     private final UserService userService;
+    private final LikeDao likeDao;
 
     @Autowired
     public FilmService(
             @Qualifier("filmDbStorage") FilmStorage filmStorage,
-            UserService userService
+            UserService userService,
+            LikeDao likeDao
     ) {
         this.filmStorage = filmStorage;
         this.userService = userService;
+        this.likeDao = likeDao;
     }
 
     public Film add(Film film) {
@@ -39,18 +43,15 @@ public class FilmService {
 
     public Film getById(int id) {
         isExists(id);
-
         return filmStorage.get(id);
     }
 
     public Film update(Film film) {
         isExists(film.getId());
-
-        if (validation(film)) {
-            filmStorage.add(film);
-            log.info("Updated film id: {}", film.getId());
-        }
-        return film;
+        validation(film);
+        filmStorage.update(film);
+        log.info("Updated film id: {}", film.getId());
+        return getById(film.getId());
     }
 
     public List<Film> getAll() {
@@ -95,6 +96,8 @@ public class FilmService {
             errorMessage = "Release date can't be earlier than 28-12-1895!";
         } else if (film.getDuration() < 0) {
             errorMessage = "Duration can't be negative!";
+        } else if (film.getMpa() == null) {
+            errorMessage = "MPA can't be NULL!";
         }
 
         if (errorMessage != null) {

@@ -8,6 +8,8 @@ public interface FilmStorage {
 
     void add(Film film);
 
+    void update(Film film);
+
     void delete(Film film);
 
     Film get(int id);
