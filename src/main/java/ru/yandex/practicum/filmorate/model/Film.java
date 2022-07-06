@@ -12,8 +12,6 @@ import java.util.*;
 public class Film {
     private int id;
 
-    //private Set<Integer> idUsersWhoLiked = new HashSet<>();
-
     @NotBlank
     private String name;
 
@@ -28,10 +26,6 @@ public class Film {
     private FilmRate mpa;
 
     private List<FilmGenre> genres;
-
-//    public int likesQuantity() {
-//        return idUsersWhoLiked.size();
-//    }
 
     public Map<String, Object> toMap() {
         Map<String, Object> values = new HashMap<>();
