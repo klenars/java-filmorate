@@ -20,71 +20,99 @@ import static org.junit.jupiter.api.Assertions.*;
 class UserDbStorageTest {
     private final UserDbStorage userStorage;
 
-    static User testUser1;
-    static User testUser2;
-    static User testUser3;
-
-    @BeforeAll
-    static void createUsers() {
-        testUser1 = new User();
+    @Test
+    void add() {
+        User testUser1 = new User();
         testUser1.setName("testName1");
         testUser1.setLogin("testLogin1");
         testUser1.setEmail("test1@email.ru");
         testUser1.setBirthday(LocalDate.of(1984, 7, 15));
-
-        testUser2 = new User();
-        testUser2.setName("testName2");
-        testUser2.setLogin("testLogin2");
-        testUser2.setEmail("test2@email.ru");
-        testUser2.setBirthday(LocalDate.of(1980, 8, 16));
-
-        testUser3 = new User();
-        testUser3.setName("testName3");
-        testUser3.setLogin("testLogin3");
-        testUser3.setEmail("test3@email.ru");
-        testUser3.setBirthday(LocalDate.of(2020, 2, 22));
-    }
-
-    @Test
-    void add() {
         userStorage.add(testUser1);
-        assertEquals(2, userStorage.getAll().size());
+
+        assertTrue(userStorage.isExists(testUser1.getId()));
     }
 
     @Test
     void update() {
+        User testUser2 = new User();
+        testUser2.setName("testName2");
+        testUser2.setLogin("testLogin2");
+        testUser2.setEmail("test2@email.ru");
+        testUser2.setBirthday(LocalDate.of(1980, 8, 16));
         userStorage.add(testUser2);
-        testUser3.setId(2);
+
+        User testUser3 = new User();
+        testUser3.setName("testName3");
+        testUser3.setLogin("testLogin3");
+        testUser3.setEmail("test3@email.ru");
+        testUser3.setBirthday(LocalDate.of(2020, 2, 22));
+
+        testUser3.setId(testUser2.getId());
+
         userStorage.update(testUser3);
 
-        User user = userStorage.get(2);
-        assertThat(user).hasFieldOrPropertyWithValue("id", 2);
+        User user = userStorage.get(testUser2.getId());
+
         assertThat(user).hasFieldOrPropertyWithValue("login", "testLogin3");
     }
 
     @Test
     void get() {
-        User user = userStorage.get(3);
-        assertThat(user).hasFieldOrPropertyWithValue("id", 3);
-        assertThat(user).hasFieldOrPropertyWithValue("name", "testName1");
+        User testUser3 = new User();
+        testUser3.setName("testName3");
+        testUser3.setLogin("testLogin3");
+        testUser3.setEmail("test3@email.ru");
+        testUser3.setBirthday(LocalDate.of(2020, 2, 22));
+        userStorage.add(testUser3);
+
+        User user = userStorage.get(testUser3.getId());
+
+        assertThat(user).hasFieldOrPropertyWithValue("name", "testName3");
     }
 
     @Test
     void isExists() {
-        assertFalse(userStorage.isExists(1));
+        User testUser1 = new User();
+        testUser1.setName("testName1");
+        testUser1.setLogin("testLogin1");
+        testUser1.setEmail("test1@email.ru");
+        testUser1.setBirthday(LocalDate.of(1984, 7, 15));
+        userStorage.add(testUser1);
+
+        assertFalse(userStorage.isExists(-1));
+        assertTrue(userStorage.isExists(testUser1.getId()));
     }
 
     @Test
     void delete() {
-        userStorage.add(testUser1);
-        userStorage.delete(testUser1);
+        User testUser2 = new User();
+        testUser2.setName("testName2");
+        testUser2.setLogin("testLogin2");
+        testUser2.setEmail("test2@email.ru");
+        testUser2.setBirthday(LocalDate.of(1980, 8, 16));
+        userStorage.add(testUser2);
 
-        assertTrue(userStorage.getAll().isEmpty());
+        assertTrue(userStorage.isExists(testUser2.getId()));
+
+        userStorage.delete(testUser2);
+
+        assertFalse(userStorage.isExists(testUser2.getId()));
     }
 
     @Test
     void getAll() {
-        List<User> userList = userStorage.getAll();
-        assertEquals(0, userList.size());
+        User testUser1 = new User();
+        testUser1.setName("testName1");
+        testUser1.setLogin("testLogin1");
+        testUser1.setEmail("test1@email.ru");
+        testUser1.setBirthday(LocalDate.of(1984, 7, 15));
+
+        List<User> userListBeforeAdd = userStorage.getAll();
+
+        userStorage.add(testUser1);
+
+        List<User> userListAfterAdd = userStorage.getAll();
+
+        assertEquals(userListBeforeAdd.size() + 1, userListAfterAdd.size());
     }
 }
