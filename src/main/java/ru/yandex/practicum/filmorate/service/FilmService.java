@@ -36,7 +36,7 @@ public class FilmService {
         validation(film);
         filmStorage.add(film);
         log.info("Added film name: {}, id: {}", film.getName(), film.getId());
-        return film;
+        return getById(film.getId());
     }
 
     public Film getById(int id) {
@@ -49,7 +49,7 @@ public class FilmService {
         validation(film);
         filmStorage.update(film);
         log.info("Updated film id: {}", film.getId());
-        return film;
+        return getById(film.getId());
     }
 
     public List<Film> getAll() {
@@ -81,7 +81,7 @@ public class FilmService {
         }
     }
 
-    private boolean validation(Film film) {
+    private void validation(Film film) {
         String errorMessage = null;
 
         if (film.getName().isBlank()) {
@@ -99,8 +99,6 @@ public class FilmService {
         if (errorMessage != null) {
             log.warn(errorMessage);
             throw new ValidationException(errorMessage);
-        } else {
-            return true;
         }
     }
 }

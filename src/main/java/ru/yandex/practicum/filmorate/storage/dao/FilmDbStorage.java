@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.List;
 
 @Repository("filmDbStorage")
@@ -31,9 +32,7 @@ public class FilmDbStorage implements FilmStorage {
                 .usingGeneratedKeyColumns("film_id");
         film.setId(simpleJdbcInsert.executeAndReturnKey(film.toMap()).intValue());
 
-        if (film.getGenres() != null) {
-            addGenreToFilm(film.getId(), film.getGenres());
-        }
+        addGenreToFilm(film.getId(), film.getGenres());
     }
 
     @Override
@@ -59,9 +58,7 @@ public class FilmDbStorage implements FilmStorage {
                 film.getMpa().getId(),
                 film.getId());
 
-        if (film.getGenres() != null) {
-            addGenreToFilm(film.getId(), film.getGenres());
-        }
+        addGenreToFilm(film.getId(), film.getGenres());
     }
 
     @Override
@@ -94,7 +91,7 @@ public class FilmDbStorage implements FilmStorage {
         if (genres != null) {
             if (!genres.isEmpty()) {
                 StringBuilder sqlQuery = new StringBuilder("INSERT INTO film_genre (film_id, genre_id) VALUES ");
-                for (FilmGenre filmGenre : genres) {
+                for (FilmGenre filmGenre : new HashSet<>(genres)) {
                     sqlQuery.append("(").append(filmId).append(", ").append(filmGenre.getId()).append("), ");
                 }
                 sqlQuery.delete(sqlQuery.length() - 2, sqlQuery.length());
@@ -134,13 +131,9 @@ public class FilmDbStorage implements FilmStorage {
         String sqlQuery = "SELECT * " +
                 "FROM genre AS g " +
                 "LEFT JOIN film_genre AS fg ON g.genre_id = fg.genre_id " +
-                "WHERE fg.film_id = ?";
+                "WHERE fg.film_id = ? " +
+                "ORDER BY g.genre_id";
 
-        List<FilmGenre> genres = jdbcTemplate.query(sqlQuery, genreDao::mapRowToGenre, filmId);
-        if (genres.isEmpty()) {
-            return null;
-        } else {
-            return genres;
-        }
+        return jdbcTemplate.query(sqlQuery, genreDao::mapRowToGenre, filmId);
     }
 }
