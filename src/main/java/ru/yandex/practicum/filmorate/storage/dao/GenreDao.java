@@ -49,7 +49,7 @@ public class GenreDao {
         return filmGenre;
     }
 
-    public boolean isExist(int id) {
+    private boolean isExist(int id) {
         String sqlQuery = "SELECT mpa_id " +
                 "FROM mpa " +
                 "WHERE mpa_id = ?";
