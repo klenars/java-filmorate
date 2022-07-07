@@ -2,36 +2,35 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ResourceNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.FriendshipStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class UserService {
 
-    private static int idForUsers = 1;
     private final UserStorage userStorage;
+    private final FriendshipStorage friendshipStorage;
 
     @Autowired
-    public UserService(UserStorage userStorage) {
+    public UserService(@Qualifier("userDbStorage") UserStorage userStorage, FriendshipStorage friendshipStorage) {
         this.userStorage = userStorage;
+        this.friendshipStorage = friendshipStorage;
     }
 
     public User add(User user) {
-        if (validation(user)) {
-            int id = idForUsers++;
-            user.setId(id);
-            userStorage.add(user);
-            log.info("Added user name: {}, id: {}", user.getName(), user.getId());
-        }
+        validation(user);
+        userStorage.add(user);
+        log.info("Added user name: {}, id: {}", user.getName(), user.getId());
         return user;
     }
 
@@ -42,47 +41,46 @@ public class UserService {
 
     public User update(User user) {
         isExists(user.getId());
-        if (validation(user)) {
-            userStorage.add(user);
-            log.info("Updated user id: {}", user.getId());
-        }
-        return user;
+        validation(user);
+        userStorage.update(user);
+        log.info("Updated user id: {}", user.getId());
+        return getById(user.getId());
     }
 
     public List<User> getAll() {
         return new ArrayList<>(userStorage.getAll());
     }
 
+    public void delete(User user) {
+        isExists(user.getId());
+        userStorage.delete(user);
+    }
+
     public void addFriend(int id, int friendId) {
         isExists(id);
         isExists(friendId);
 
-        userStorage.get(id).getFriendsIDs().add(friendId);
-        userStorage.get(friendId).getFriendsIDs().add(id);
+        friendshipStorage.addFriend(id, friendId);
     }
 
     public void deleteFriend(int id, int friendId) {
         isExists(id);
         isExists(friendId);
 
-        userStorage.get(id).getFriendsIDs().remove(friendId);
-        userStorage.get(friendId).getFriendsIDs().remove(id);
+        friendshipStorage.deleteFriend(id, friendId);
     }
 
     public List<User> getAllFriends(int id) {
         isExists(id);
 
-        return userStorage.get(id).getFriendsIDs().stream()
-                .map(userStorage::get)
-                .collect(Collectors.toList());
+        return friendshipStorage.getAllFriends(id);
     }
 
     public List<User> getCommonFriends(int id, int otherId) {
+        isExists(id);
+        isExists(otherId);
 
-        return userStorage.get(id).getFriendsIDs().stream()
-                .filter(friendId -> userStorage.get(otherId).getFriendsIDs().contains(friendId))
-                .map(userStorage::get)
-                .collect(Collectors.toList());
+        return friendshipStorage.getCommonFriends(id, otherId);
     }
 
     public void isExists(int id) {
@@ -92,7 +90,7 @@ public class UserService {
         }
     }
 
-    private boolean validation(User user) {
+    private void validation(User user) {
         if (user.getName().isEmpty()) {
             user.setName(user.getLogin());
         }
@@ -110,8 +108,6 @@ public class UserService {
         if (errorMessage != null) {
             log.warn(errorMessage);
             throw new ValidationException(errorMessage);
-        } else {
-            return true;
         }
     }
 

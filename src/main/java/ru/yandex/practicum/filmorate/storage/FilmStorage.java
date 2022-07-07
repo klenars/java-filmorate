@@ -8,6 +8,8 @@ public interface FilmStorage {
 
     void add(Film film);
 
+    void update(Film film);
+
     void delete(Film film);
 
     Film get(int id);
@@ -15,4 +17,6 @@ public interface FilmStorage {
     boolean isExist(int id);
 
     List<Film> getAll();
+
+    List<Film> getPopular(int count);
 }

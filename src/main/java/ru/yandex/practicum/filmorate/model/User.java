@@ -7,13 +7,12 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Past;
 import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 @Data
 public class User {
     private int id;
-    private Set<Integer> friendsIDs = new HashSet<>();
 
     @Email
     private String email;
@@ -26,4 +25,13 @@ public class User {
 
     @Past
     private LocalDate birthday;
+
+    public Map<String, Object> toMap() {
+        Map<String, Object> values = new HashMap<>();
+        values.put("login", login);
+        values.put("email", email);
+        values.put("name", name);
+        values.put("birthday", birthday);
+        return values;
+    }
 }

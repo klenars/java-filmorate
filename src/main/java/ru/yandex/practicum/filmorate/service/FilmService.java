@@ -2,58 +2,55 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ResourceNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.LikeStorage;
+import ru.yandex.practicum.filmorate.storage.dao.LikeDao;
 
 import java.time.LocalDate;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class FilmService {
 
-    private static int idForFilms = 1;
     private final FilmStorage filmStorage;
     private final UserService userService;
+    private final LikeStorage likeStorage;
 
     @Autowired
     public FilmService(
-            FilmStorage filmStorage,
-            UserService userService
+            @Qualifier("filmDbStorage") FilmStorage filmStorage,
+            UserService userService,
+            LikeDao likeStorage
     ) {
         this.filmStorage = filmStorage;
         this.userService = userService;
+        this.likeStorage = likeStorage;
     }
 
     public Film add(Film film) {
-        if (validation(film)) {
-            int id = idForFilms++;
-            film.setId(id);
-            filmStorage.add(film);
-            log.info("Added film name: {}, id: {}", film.getName(), film.getId());
-        }
-        return film;
+        validation(film);
+        filmStorage.add(film);
+        log.info("Added film name: {}, id: {}", film.getName(), film.getId());
+        return getById(film.getId());
     }
 
     public Film getById(int id) {
         isExists(id);
-
         return filmStorage.get(id);
     }
 
     public Film update(Film film) {
         isExists(film.getId());
-
-        if (validation(film)) {
-            filmStorage.add(film);
-            log.info("Updated film id: {}", film.getId());
-        }
-        return film;
+        validation(film);
+        filmStorage.update(film);
+        log.info("Updated film id: {}", film.getId());
+        return getById(film.getId());
     }
 
     public List<Film> getAll() {
@@ -62,22 +59,20 @@ public class FilmService {
 
     public void addLike(int id, int userId) {
         isExists(id);
+        userService.isExists(userId);
 
-        filmStorage.get(id).getIdUsersWhoLiked().add(userId);
+        likeStorage.addLike(id, userId);
     }
 
     public void deleteLike(int id, int userId) {
         isExists(id);
         userService.isExists(userId);
 
-        filmStorage.get(id).getIdUsersWhoLiked().remove(userId);
+        likeStorage.deleteLike(id, userId);
     }
 
     public List<Film> getPopular(int count) {
-        return filmStorage.getAll().stream()
-                .sorted(Comparator.comparingInt(Film::likesQuantity).reversed())
-                .limit(count)
-                .collect(Collectors.toList());
+        return filmStorage.getPopular(count);
     }
 
     private void isExists(int id) {
@@ -87,7 +82,7 @@ public class FilmService {
         }
     }
 
-    private boolean validation(Film film) {
+    private void validation(Film film) {
         String errorMessage = null;
 
         if (film.getName().isBlank()) {
@@ -98,13 +93,13 @@ public class FilmService {
             errorMessage = "Release date can't be earlier than 28-12-1895!";
         } else if (film.getDuration() < 0) {
             errorMessage = "Duration can't be negative!";
+        } else if (film.getMpa() == null) {
+            errorMessage = "MPA can't be NULL!";
         }
 
         if (errorMessage != null) {
             log.warn(errorMessage);
             throw new ValidationException(errorMessage);
-        } else {
-            return true;
         }
     }
 }

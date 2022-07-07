@@ -19,6 +19,11 @@ public class InMemoryFilmStorage implements FilmStorage{
     }
 
     @Override
+    public void update(Film film) {
+
+    }
+
+    @Override
     public Film get(int id) {
         return films.get(id);
     }
@@ -31,6 +36,11 @@ public class InMemoryFilmStorage implements FilmStorage{
     @Override
     public List<Film> getAll() {
         return new ArrayList<>(films.values());
+    }
+
+    @Override
+    public List<Film> getPopular(int count) {
+        return null;
     }
 
     @Override
