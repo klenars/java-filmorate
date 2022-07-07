@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ResourceNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.FriendshipStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
-import ru.yandex.practicum.filmorate.storage.dao.FriendshipDao;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -19,12 +19,12 @@ import java.util.List;
 public class UserService {
 
     private final UserStorage userStorage;
-    private final FriendshipDao friendshipDao;
+    private final FriendshipStorage friendshipStorage;
 
     @Autowired
-    public UserService(@Qualifier("userDbStorage") UserStorage userStorage, FriendshipDao friendshipDao) {
+    public UserService(@Qualifier("userDbStorage") UserStorage userStorage, FriendshipStorage friendshipStorage) {
         this.userStorage = userStorage;
-        this.friendshipDao = friendshipDao;
+        this.friendshipStorage = friendshipStorage;
     }
 
     public User add(User user) {
@@ -60,27 +60,27 @@ public class UserService {
         isExists(id);
         isExists(friendId);
 
-        friendshipDao.addFriend(id, friendId);
+        friendshipStorage.addFriend(id, friendId);
     }
 
     public void deleteFriend(int id, int friendId) {
         isExists(id);
         isExists(friendId);
 
-        friendshipDao.deleteFriend(id, friendId);
+        friendshipStorage.deleteFriend(id, friendId);
     }
 
     public List<User> getAllFriends(int id) {
         isExists(id);
 
-        return friendshipDao.getAllFriends(id);
+        return friendshipStorage.getAllFriends(id);
     }
 
     public List<User> getCommonFriends(int id, int otherId) {
         isExists(id);
         isExists(otherId);
 
-        return friendshipDao.getCommonFriends(id, otherId);
+        return friendshipStorage.getCommonFriends(id, otherId);
     }
 
     public void isExists(int id) {

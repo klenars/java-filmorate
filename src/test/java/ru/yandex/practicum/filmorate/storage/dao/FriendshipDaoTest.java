@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 class FriendshipDaoTest {
-    private final FriendshipDao friendshipDao;
+    private final FriendshipDaoImpl friendshipDao;
     private final UserDbStorage userDbStorage;
 
     @Test

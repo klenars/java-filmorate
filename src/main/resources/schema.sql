@@ -20,8 +20,8 @@ CREATE TABLE IF NOT EXISTS film
     description varchar,
     release_date date,
     duration     int,
-    mpa         int,
-    FOREIGN KEY (mpa) REFERENCES mpa (mpa_id)
+    mpa_id         int,
+    FOREIGN KEY (mpa_id) REFERENCES mpa (mpa_id)
     );
 
 CREATE TABLE IF NOT EXISTS genre

@@ -49,7 +49,7 @@ class LikeDaoTest {
 
         likeDao.addLike(filmToUpdate.getId(), testUser1.getId());
 
-        assertEquals(filmToUpdate.getId(), likeDao.getPopular(5).get(0).getId());
+        assertEquals(filmToUpdate.getId(), filmDbStorage.getPopular(5).get(0).getId());
     }
 
     @Test
@@ -78,15 +78,15 @@ class LikeDaoTest {
         testUser1.setBirthday(LocalDate.of(1984, 7, 15));
         userDbStorage.add(testUser1);
 
-        int id = likeDao.getPopular(5).get(0).getId();
+        int id = filmDbStorage.getPopular(5).get(0).getId();
 
         likeDao.addLike(filmToUpdate.getId(), testUser1.getId());
 
-        assertEquals(filmToUpdate.getId(), likeDao.getPopular(5).get(0).getId());
+        assertEquals(filmToUpdate.getId(), filmDbStorage.getPopular(5).get(0).getId());
 
         likeDao.deleteLike(filmToUpdate.getId(), testUser1.getId());
 
-        assertEquals(id, likeDao.getPopular(5).get(0).getId());
+        assertEquals(id, filmDbStorage.getPopular(5).get(0).getId());
     }
 
     @Test
@@ -108,6 +108,6 @@ class LikeDaoTest {
         filmToUpdate.setReleaseDate(LocalDate.of(2020, 2, 22));
         filmDbStorage.add(filmToUpdate);
 
-        assertFalse(likeDao.getPopular(10).isEmpty());
+        assertFalse(filmDbStorage.getPopular(10).isEmpty());
     }
 }

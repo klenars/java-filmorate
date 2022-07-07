@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.exception.ResourceNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.LikeStorage;
 import ru.yandex.practicum.filmorate.storage.dao.LikeDao;
 
 import java.time.LocalDate;
@@ -19,17 +20,17 @@ public class FilmService {
 
     private final FilmStorage filmStorage;
     private final UserService userService;
-    private final LikeDao likeDao;
+    private final LikeStorage likeStorage;
 
     @Autowired
     public FilmService(
             @Qualifier("filmDbStorage") FilmStorage filmStorage,
             UserService userService,
-            LikeDao likeDao
+            LikeDao likeStorage
     ) {
         this.filmStorage = filmStorage;
         this.userService = userService;
-        this.likeDao = likeDao;
+        this.likeStorage = likeStorage;
     }
 
     public Film add(Film film) {
@@ -60,18 +61,18 @@ public class FilmService {
         isExists(id);
         userService.isExists(userId);
 
-        likeDao.addLike(id, userId);
+        likeStorage.addLike(id, userId);
     }
 
     public void deleteLike(int id, int userId) {
         isExists(id);
         userService.isExists(userId);
 
-        likeDao.deleteLike(id, userId);
+        likeStorage.deleteLike(id, userId);
     }
 
     public List<Film> getPopular(int count) {
-        return likeDao.getPopular(count);
+        return filmStorage.getPopular(count);
     }
 
     private void isExists(int id) {

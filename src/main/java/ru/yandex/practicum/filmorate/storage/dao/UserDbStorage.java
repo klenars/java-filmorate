@@ -10,7 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-@Repository("userDbStorage")
+@Repository
 public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
 

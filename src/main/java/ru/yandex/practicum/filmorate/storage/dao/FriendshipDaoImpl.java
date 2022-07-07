@@ -3,19 +3,21 @@ package ru.yandex.practicum.filmorate.storage.dao;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.FriendshipStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
 @Repository
-public class FriendshipDao {
+public class FriendshipDaoImpl implements FriendshipStorage {
     private final JdbcTemplate jdbcTemplate;
 
-    public FriendshipDao(JdbcTemplate jdbcTemplate) {
+    public FriendshipDaoImpl(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    @Override
     public void addFriend(int id, int friendId) {
         String sqlQuery = "INSERT INTO user_friend (user_id, friend_id)" +
                 "VALUES (?, ?)";
@@ -23,6 +25,7 @@ public class FriendshipDao {
         jdbcTemplate.update(sqlQuery, id, friendId);
     }
 
+    @Override
     public void deleteFriend(int id, int friendId) {
         String sqlQuery = "DELETE FROM user_friend " +
                 "WHERE user_id = ? AND friend_id = ?";
@@ -30,6 +33,7 @@ public class FriendshipDao {
         jdbcTemplate.update(sqlQuery, id, friendId);
     }
 
+    @Override
     public List<User> getAllFriends(int id) {
         String sqlQuery = "SELECT * " +
                 "FROM users AS u " +
@@ -39,6 +43,7 @@ public class FriendshipDao {
         return jdbcTemplate.query(sqlQuery, this::mapRowToUser, id);
     }
 
+    @Override
     public List<User> getCommonFriends(int id, int otherId) {
         String sqlQuery = "SELECT * " +
                 "FROM users " +

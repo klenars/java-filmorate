@@ -5,6 +5,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.ResourceNotFoundException;
 import ru.yandex.practicum.filmorate.model.FilmRate;
+import ru.yandex.practicum.filmorate.storage.MpaStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,16 +13,17 @@ import java.util.List;
 
 @Slf4j
 @Repository
-public class MpaDao {
+public class MpaDao implements MpaStorage {
     private final JdbcTemplate jdbcTemplate;
 
     public MpaDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    @Override
     public FilmRate getById(int id) {
         if (!isExist(id)) {
-            String mes = String.format("Genre with id: %d doesn't exist!", id);
+            String mes = String.format("Rate with id: %d doesn't exist!", id);
             log.warn(mes);
             throw new ResourceNotFoundException(mes);
         }
@@ -33,6 +35,7 @@ public class MpaDao {
         return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToMpa, id);
     }
 
+    @Override
     public List<FilmRate> getAll() {
         String sqlQuery = "SELECT * " +
                 "FROM MPA";
@@ -40,7 +43,16 @@ public class MpaDao {
         return jdbcTemplate.query(sqlQuery, this::mapRowToMpa);
     }
 
-    protected FilmRate mapRowToMpa(ResultSet resultSet, int i) throws SQLException {
+    @Override
+    public FilmRate getFilmRate(int mpaId) {
+        String sqlQuery = "SELECT * " +
+                "FROM mpa " +
+                "WHERE mpa_id = ?";
+
+        return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToMpa, mpaId);
+    }
+
+    private FilmRate mapRowToMpa(ResultSet resultSet, int i) throws SQLException {
         FilmRate filmRate = new FilmRate();
         filmRate.setId(resultSet.getInt("mpa_id"));
         filmRate.setName(resultSet.getString("name"));
@@ -49,9 +61,9 @@ public class MpaDao {
     }
 
     private boolean isExist(int id) {
-        String sqlQuery = "SELECT GENRE_ID " +
-                "FROM GENRE " +
-                "WHERE GENRE_ID = ?";
+        String sqlQuery = "SELECT mpa_id " +
+                "FROM mpa " +
+                "WHERE mpa_id = ?";
 
         return jdbcTemplate.queryForRowSet(sqlQuery, id).next();
     }

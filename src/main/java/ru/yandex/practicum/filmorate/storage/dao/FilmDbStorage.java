@@ -1,29 +1,26 @@
 package ru.yandex.practicum.filmorate.storage.dao;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.FilmGenre;
-import ru.yandex.practicum.filmorate.model.FilmRate;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.GenreStorage;
+import ru.yandex.practicum.filmorate.storage.MpaStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.List;
 
-@Repository("filmDbStorage")
+@Repository
+@RequiredArgsConstructor
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
-    private final GenreDao genreDao;
-    private final MpaDao mpaDao;
-
-    public FilmDbStorage(JdbcTemplate jdbcTemplate, GenreDao genreDao, MpaDao mpaDao) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.genreDao = genreDao;
-        this.mpaDao = mpaDao;
-    }
+    private final GenreStorage genreStorage;
+    private final MpaStorage mpaStorage;
 
     @Override
     public void add(Film film) {
@@ -47,7 +44,7 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public void update(Film film) {
         String sqlQuery = "UPDATE film " +
-                "SET name = ?, description = ?, release_date = ?, duration = ?, mpa = ? " +
+                "SET name = ?, description = ?, release_date = ?, duration = ?, mpa_id = ? " +
                 "WHERE film_id = ?";
 
         jdbcTemplate.update(sqlQuery,
@@ -85,6 +82,18 @@ public class FilmDbStorage implements FilmStorage {
         return jdbcTemplate.query(sqlQuery, this::mapRowToFilm);
     }
 
+    @Override
+    public List<Film> getPopular(int count) {
+        String sql = "SELECT * " +
+                "FROM film AS f " +
+                "LEFT JOIN film_user_like AS ful ON f.film_id = ful.film_id " +
+                "GROUP BY f.film_id " +
+                "ORDER BY COUNT(ful.user_id) DESC " +
+                "LIMIT ?";
+
+        return jdbcTemplate.query(sql, this::mapRowToFilm, count);
+    }
+
     private void addGenreToFilm(int filmId, List<FilmGenre> genres) {
         deleteGenre(filmId);
 
@@ -113,27 +122,9 @@ public class FilmDbStorage implements FilmStorage {
         film.setDescription(resultSet.getString("description"));
         film.setDuration(resultSet.getInt("duration"));
         film.setReleaseDate(resultSet.getDate("release_date").toLocalDate());
-        film.setGenres(getGenreList(film.getId()));
-        film.setMpa(getFilmRate(resultSet.getInt("mpa")));
+        film.setGenres(genreStorage.getFilmGenreList(film.getId()));
+        film.setMpa(mpaStorage.getFilmRate(resultSet.getInt("mpa_id")));
 
         return film;
-    }
-
-    private FilmRate getFilmRate(int mpaId) {
-        String sqlQuery = "SELECT * " +
-                "FROM mpa " +
-                "WHERE mpa_id = ?";
-
-        return jdbcTemplate.queryForObject(sqlQuery, mpaDao::mapRowToMpa, mpaId);
-    }
-
-    private List<FilmGenre> getGenreList(int filmId) {
-        String sqlQuery = "SELECT * " +
-                "FROM genre AS g " +
-                "LEFT JOIN film_genre AS fg ON g.genre_id = fg.genre_id " +
-                "WHERE fg.film_id = ? " +
-                "ORDER BY g.genre_id";
-
-        return jdbcTemplate.query(sqlQuery, genreDao::mapRowToGenre, filmId);
     }
 }

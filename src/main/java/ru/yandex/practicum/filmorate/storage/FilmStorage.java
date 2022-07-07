@@ -17,4 +17,6 @@ public interface FilmStorage {
     boolean isExist(int id);
 
     List<Film> getAll();
+
+    List<Film> getPopular(int count);
 }

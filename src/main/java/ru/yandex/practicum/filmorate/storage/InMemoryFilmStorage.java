@@ -39,6 +39,11 @@ public class InMemoryFilmStorage implements FilmStorage{
     }
 
     @Override
+    public List<Film> getPopular(int count) {
+        return null;
+    }
+
+    @Override
     public void delete(Film film) {
         films.remove(film.getId());
     }
