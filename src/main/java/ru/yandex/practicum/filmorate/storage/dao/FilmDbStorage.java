@@ -91,12 +91,6 @@ public class FilmDbStorage implements FilmStorage {
                 "ORDER BY COUNT(ful.user_id) DESC " +
                 "LIMIT ?";
 
-        /*String sql = "SELECT film_user_like.FILM_ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA_ID " +
-        "FROM FILM RIGHT JOIN film_user_like ON FILM.FILM_ID = film_user_like.FILM_ID " +
-                "GROUP BY film_user_like.FILM_ID " +
-                "ORDER BY COUNT(USER_ID) DESC "+
-                "LIMIT ?";*/
-
         return jdbcTemplate.query(sql, this::mapRowToFilm, count);
     }
 
