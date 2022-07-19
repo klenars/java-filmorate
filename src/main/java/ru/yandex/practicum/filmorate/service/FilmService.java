@@ -75,6 +75,11 @@ public class FilmService {
         return filmStorage.getPopular(count);
     }
 
+    public void deleteFilmById(int filmId){
+        isExists(filmId);
+        filmStorage.deleteFilmById(filmId);
+    }
+
     private void isExists(int id) {
         if (!filmStorage.isExist(id)) {
             log.warn(String.format("Film with id: %d doesn't exist!", id));
