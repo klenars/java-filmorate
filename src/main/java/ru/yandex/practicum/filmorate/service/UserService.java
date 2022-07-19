@@ -89,6 +89,10 @@ public class UserService {
             throw new ResourceNotFoundException(String.format("User with id: %d doesn't exist!", id));
         }
     }
+    public void deleteUserById(int userId){
+        isExists(userId);
+        userStorage.deleteUserById(userId);
+    }
 
     private void validation(User user) {
         if (user.getName().isEmpty()) {

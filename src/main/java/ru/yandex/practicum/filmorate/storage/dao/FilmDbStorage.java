@@ -84,7 +84,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getPopular(int count) {
-        String sql = "SELECT * " +
+        String sql = "SELECT ful.FILM_ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA_ID " +
                 "FROM film AS f " +
                 "LEFT JOIN film_user_like AS ful ON f.film_id = ful.film_id " +
                 "GROUP BY f.film_id " +
@@ -92,6 +92,12 @@ public class FilmDbStorage implements FilmStorage {
                 "LIMIT ?";
 
         return jdbcTemplate.query(sql, this::mapRowToFilm, count);
+    }
+
+    @Override
+    public void deleteFilmById(int filmId) {
+        String sqlQuery = "DELETE FROM film WHERE film_id = ?";
+        jdbcTemplate.update(sqlQuery, filmId);
     }
 
     private void addGenreToFilm(int filmId, List<FilmGenre> genres) {
