@@ -31,6 +31,13 @@ CREATE TABLE IF NOT EXISTS genre
     name     varchar UNIQUE
 );
 
+CREATE TABLE IF NOT EXISTS directors
+(
+    director_id int PRIMARY KEY AUTO_INCREMENT,
+    name   varchar UNIQUE
+
+);
+
 CREATE TABLE IF NOT EXISTS film_genre
 (
     film_id  int,
@@ -41,6 +48,17 @@ CREATE TABLE IF NOT EXISTS film_genre
         REFERENCES film (FILM_ID)
         ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS film_directors
+(
+    film_id  int,
+    director_id int,
+    FOREIGN KEY (director_id) REFERENCES director (director_id),
+    UNIQUE (film_id, director_id),
+    CONSTRAINT "FK_DIRECTOR" FOREIGN KEY (FILM_ID)
+    REFERENCES film (FILM_ID)
+    ON DELETE CASCADE
+    );
 
 CREATE TABLE IF NOT EXISTS user_friend
 (

@@ -27,6 +27,8 @@ public class Film {
 
     private List<FilmGenre> genres;
 
+    private List<Director> directors;
+
     public Map<String, Object> toMap() {
         Map<String, Object> values = new HashMap<>();
         values.put("name", name);

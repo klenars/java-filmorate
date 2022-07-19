@@ -65,4 +65,6 @@ public class FilmController {
     public void deleteUserById(@PathVariable int filmId) {
         filmService.deleteFilmById(filmId);
     }
+
+    //TODO GET /films/director/:directorId?sortBy=[year, likes] список фильмов режиссера отсортированных по году выхода, лайкам
 }
