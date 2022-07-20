@@ -6,7 +6,9 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Data
 public class Film {
@@ -26,6 +28,8 @@ public class Film {
     private FilmRate mpa;
 
     private List<FilmGenre> genres;
+
+    private List<Director> directors;
 
     public Map<String, Object> toMap() {
         Map<String, Object> values = new HashMap<>();

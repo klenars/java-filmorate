@@ -4,8 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.FilmGenre;
+import ru.yandex.practicum.filmorate.storage.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.MpaStorage;
@@ -21,6 +23,7 @@ public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
     private final GenreStorage genreStorage;
     private final MpaStorage mpaStorage;
+    private final DirectorStorage directorStorage;
 
     @Override
     public void add(Film film) {
@@ -30,6 +33,7 @@ public class FilmDbStorage implements FilmStorage {
         film.setId(simpleJdbcInsert.executeAndReturnKey(film.toMap()).intValue());
 
         addGenreToFilm(film.getId(), film.getGenres());
+        addDirectorsToFilm(film.getId(), film.getDirectors());
     }
 
     @Override
@@ -56,6 +60,7 @@ public class FilmDbStorage implements FilmStorage {
                 film.getId());
 
         addGenreToFilm(film.getId(), film.getGenres());
+        addDirectorsToFilm(film.getId(), film.getDirectors());
     }
 
     @Override
@@ -63,6 +68,7 @@ public class FilmDbStorage implements FilmStorage {
         String sqlQuery = "DELETE FROM film WHERE film_id = ?";
         jdbcTemplate.update(sqlQuery, film.getId());
         deleteGenre(film.getId());
+        deleteDirectors(film.getId());
     }
 
     @Override
@@ -131,6 +137,26 @@ public class FilmDbStorage implements FilmStorage {
         jdbcTemplate.update(sqlQuery, filmId);
     }
 
+    private void addDirectorsToFilm(int filmId, List<Director> directors) {
+        deleteDirectors(filmId);
+
+        if (directors != null) {
+            if (!directors.isEmpty()) {
+                StringBuilder sqlQuery = new StringBuilder("INSERT INTO film_directors (film_id, director_id) VALUES ");
+                for (Director director : new HashSet<>(directors)) {
+                    sqlQuery.append("(").append(filmId).append(", ").append(director.getId()).append("), ");
+                }
+                sqlQuery.delete(sqlQuery.length() - 2, sqlQuery.length());
+
+                jdbcTemplate.update(sqlQuery.toString());
+            }
+        }
+    }
+    private void deleteDirectors(int filmId) {
+        String sqlQuery = "DELETE FROM film_directors WHERE film_id = ?";
+        jdbcTemplate.update(sqlQuery, filmId);
+    }
+
     protected Film mapRowToFilm(ResultSet resultSet, int i) throws SQLException {
         Film film = new Film();
         film.setId(resultSet.getInt("film_id"));
@@ -140,6 +166,7 @@ public class FilmDbStorage implements FilmStorage {
         film.setReleaseDate(resultSet.getDate("release_date").toLocalDate());
         film.setGenres(genreStorage.getFilmGenreList(film.getId()));
         film.setMpa(mpaStorage.getFilmRate(resultSet.getInt("mpa_id")));
+        film.setDirectors(directorStorage.getFilmDirectorList(film.getId()));
 
         return film;
     }
