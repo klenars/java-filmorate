@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 import ru.yandex.practicum.filmorate.exception.ResourceNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -73,6 +74,13 @@ public class FilmService {
 
     public List<Film> getPopular(int count) {
         return filmStorage.getPopular(count);
+    }
+
+    public List<Film> getCommonFilms(int userId, int friendId) {
+        userService.isExists(userId);
+        userService.isExists(friendId);
+
+        return filmStorage.getCommonFilms(userId, friendId);
     }
 
     public void deleteFilmById(int filmId) {
