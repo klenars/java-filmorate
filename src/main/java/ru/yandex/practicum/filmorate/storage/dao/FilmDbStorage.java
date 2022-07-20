@@ -100,6 +100,16 @@ public class FilmDbStorage implements FilmStorage {
         jdbcTemplate.update(sqlQuery, filmId);
     }
 
+    @Override
+    public List<Film> getFilmsLikeUser(int userId) {
+        String sqlQuery = "SELECT * " +
+                "FROM film AS f " +
+                "LEFT JOIN film_user_like AS ful ON f.film_id = ful.film_id " +
+                "WHERE ful.user_id = ?";
+
+        return jdbcTemplate.query(sqlQuery, this::mapRowToFilm, userId);
+    }
+
     private void addGenreToFilm(int filmId, List<FilmGenre> genres) {
         deleteGenre(filmId);
 
