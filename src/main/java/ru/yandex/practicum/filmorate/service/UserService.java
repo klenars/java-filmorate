@@ -6,13 +6,19 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ResourceNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.FriendshipStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -20,11 +26,15 @@ public class UserService {
 
     private final UserStorage userStorage;
     private final FriendshipStorage friendshipStorage;
+    private final FilmStorage filmStorage;
 
     @Autowired
-    public UserService(@Qualifier("userDbStorage") UserStorage userStorage, FriendshipStorage friendshipStorage) {
+    public UserService(@Qualifier("userDbStorage") UserStorage userStorage,
+                       FriendshipStorage friendshipStorage,
+                       FilmStorage filmStorage) {
         this.userStorage = userStorage;
         this.friendshipStorage = friendshipStorage;
+        this.filmStorage = filmStorage;
     }
 
     public User add(User user) {
@@ -92,6 +102,45 @@ public class UserService {
     public void deleteUserById(int userId){
         isExists(userId);
         userStorage.deleteUserById(userId);
+    }
+
+    public List<Film> getRecommendations(int id) {
+        isExists(id);
+
+        User user = getById(id);
+        List<Film> userListFilm = filmStorage.getFilmsLikeUser(id);
+
+        List<User> allUsers = getAll();
+        allUsers.remove(user);
+
+        Map<User, List<Film>> userListMap = allUsers.stream()
+                .collect(Collectors.toMap(Function.identity(), u -> filmStorage.getFilmsLikeUser(u.getId())));
+
+        int maxFreq = 0;
+        Map<User, Integer> sameUser = new HashMap<>();
+        for (Map.Entry<User, List<Film>> entry : userListMap.entrySet()) {
+            int freq = 0;
+            for (Film film : entry.getValue()) {
+                if (userListFilm.contains(film)) {
+                    freq++;
+                }
+            }
+            if (freq > maxFreq) {
+                maxFreq = freq;
+            }
+            sameUser.put(entry.getKey(), freq);
+        }
+
+        List<Film> recommendation = new ArrayList<>();
+        for (Map.Entry<User, Integer> userEntry : sameUser.entrySet()) {
+            if (userListMap.get(userEntry.getKey()).size() > maxFreq) {
+                List<Film> diff = userListMap.get(userEntry.getKey());
+                diff.removeAll(userListFilm);
+                recommendation.addAll(diff);
+            }
+        }
+
+        return recommendation;
     }
 
     private void validation(User user) {
