@@ -7,12 +7,17 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ResourceNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.FilmGenre;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.LikeStorage;
 import ru.yandex.practicum.filmorate.storage.dao.LikeDao;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.function.Predicate;
 
 @Slf4j
 @Service
@@ -71,8 +76,26 @@ public class FilmService {
         likeStorage.deleteLike(id, userId);
     }
 
-    public List<Film> getPopular(int count) {
-        return filmStorage.getPopular(count);
+    public List<Film> getPopular(int count, int genreId, int year) {
+        List<Film> popular = filmStorage.getPopular(count);
+        if (genreId == 0 && year == 0) {
+            return popular;
+        }
+        Set<Film> mostPopular = new HashSet<>();
+        for (Film film : popular) {
+            for (FilmGenre genre : film.getGenres()) {
+                if (genreId != 0 && year != 0) {
+                    if (genre.getId() == genreId && film.getReleaseDate().getYear() == year) {
+                        mostPopular.add(film);
+                        break;
+                    }
+                } else if (genre.getId() == genreId || film.getReleaseDate().getYear() == year) {
+                    mostPopular.add(film);
+                    break;
+                }
+            }
+        }
+        return new ArrayList<>(mostPopular);
     }
 
     public void deleteFilmById(int filmId) {
