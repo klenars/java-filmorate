@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.storage.dao;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.ResourceNotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
@@ -22,12 +23,21 @@ public class DirectorDao implements DirectorStorage {
 
     @Override
     public void add(Director director) {
-//TODO
+        SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
+                .withTableName("directors")
+                .usingGeneratedKeyColumns("director_id");
+        director.setId(simpleJdbcInsert.executeAndReturnKey(director.toMap()).intValue());
     }
 
     @Override
     public void update(Director director) {
-//TODO
+        String sqlQuery = "UPDATE directors " +
+                "SET name = ? " +
+                "WHERE director_id = ?";
+
+        jdbcTemplate.update(sqlQuery,
+                director.getName(),
+                director.getId());
     }
 
     @Override
