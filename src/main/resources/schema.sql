@@ -66,3 +66,22 @@ CREATE TABLE IF NOT EXISTS film_user_like
         REFERENCES users (user_id)
         ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS directors
+(
+    director_id int PRIMARY KEY AUTO_INCREMENT,
+    name   varchar UNIQUE
+);
+
+CREATE TABLE IF NOT EXISTS film_directors
+(
+    film_id  int,
+    director_id int,
+    UNIQUE (film_id, director_id),
+    CONSTRAINT "FK_FILM" FOREIGN KEY (FILM_ID)
+        REFERENCES FILM (FILM_ID)
+        ON DELETE CASCADE,
+    CONSTRAINT "FK_DIRECTOR" FOREIGN KEY (DIRECTOR_ID)
+        REFERENCES DIRECTORS (DIRECTOR_ID)
+        ON DELETE CASCADE
+);
