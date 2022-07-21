@@ -71,8 +71,16 @@ public class FilmService {
         likeStorage.deleteLike(id, userId);
     }
 
-    public List<Film> getPopular(int count) {
-        return filmStorage.getPopular(count);
+    public List<Film> getPopular(int count, int genreId, int year) {
+        if (genreId == 0 && year == 0) {
+            return filmStorage.getPopular(count);
+        } else if (genreId != 0 && year != 0) {
+            return filmStorage.getPopularByGenreAndYear(genreId, year, count);
+        } else if (genreId != 0) {
+            return filmStorage.getPopularByGenre(genreId, count);
+        } else {
+            return filmStorage.getPopularByYear(year, count);
+        }
     }
 
     public List<Film> getCommonFilms(int userId, int friendId) {
