@@ -71,7 +71,7 @@ public class DirectorDao implements DirectorStorage {
     }
 
     @Override
-    public List<Director> getFilmDirectorList(int directorId) {
+    public List<Director> getFilmDirectorList(int filmId) {
 
             String sqlQuery = "SELECT * " +
                     "FROM directors AS d " +
@@ -79,7 +79,7 @@ public class DirectorDao implements DirectorStorage {
                     "WHERE fd.film_id = ? " +
                     "ORDER BY d.director_id";
 
-            return jdbcTemplate.query(sqlQuery, this::mapRowToDirector, directorId);
+            return jdbcTemplate.query(sqlQuery, this::mapRowToDirector, filmId);
     }
 
     private Director mapRowToDirector(ResultSet resultSet, int i) throws SQLException {
