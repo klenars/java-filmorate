@@ -82,7 +82,6 @@ public class FilmController {
         return filmService.getFilmBySubstring(query, by);
     }
 
-
     @GetMapping("/director/{directorId}")
     public List<Film> getDirectorFilmSortedByYearOrLikes(
             @PathVariable int directorId,
@@ -94,5 +93,3 @@ public class FilmController {
         }
     }
 }
-
-//TODO GET /films/director/:directorId?sortBy=[year, likes] список фильмов режиссера отсортированных по году выхода, лайкам
