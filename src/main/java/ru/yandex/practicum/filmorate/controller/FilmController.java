@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
@@ -79,6 +80,18 @@ public class FilmController {
             @RequestParam(name = "query") String query,
             @RequestParam(name = "by") String by) {
         return filmService.getFilmBySubstring(query, by);
+    }
+
+
+    @GetMapping("/director/{directorId}")
+    public List<Film> getDirectorFilmSortedByYearOrLikes(
+            @PathVariable int directorId,
+            @RequestParam String sortBy) {
+        if (sortBy.equalsIgnoreCase("year") | sortBy.equalsIgnoreCase("likes")) {
+            return filmService.getDirectorFilmSortedByYearOrLikes(directorId, sortBy);
+        } else {
+            throw new ValidationException("Incorrect sorting parameter!");
+        }
     }
 }
 

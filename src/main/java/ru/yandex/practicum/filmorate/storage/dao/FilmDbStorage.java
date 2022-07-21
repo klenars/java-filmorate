@@ -3,7 +3,10 @@ package ru.yandex.practicum.filmorate.storage.dao;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.exception.ResourceNotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.FilmGenre;
@@ -15,6 +18,7 @@ import ru.yandex.practicum.filmorate.storage.MpaStorage;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 
 @Repository
@@ -211,6 +215,40 @@ public class FilmDbStorage implements FilmStorage {
                 "GROUP BY F.FILM_ID " +
                 "ORDER BY COUNT(FUL.USER_ID) DESC";
         return jdbcTemplate.query(sqlQuery, this::mapRowToFilm, substring, substring);
+    }
+
+    @Override
+    public List<Film> getDirectorFilmSortedByYearOrLikes(int directorId, String sort) {
+        if (!directorStorage.isExist(directorId)) {
+            throw new ResourceNotFoundException(String.format("Режиссер с id = %s не найден", directorId));
+        }
+        SqlRowSet sqlRowSet;
+        try {
+            if (sort.equals("likes")) {
+                sqlRowSet = jdbcTemplate.queryForRowSet("select fd.film_id from directors d " +
+                        "left join film_directors fd on d.director_id = fd.director_id " +
+                        "left join film f on fd.film_id = f.film_id " +
+                        "left join film_user_like ful on ful.film_id = f.film_id " +
+                        "group by fd.film_id, d.director_id  " +
+                        "having  d.director_id = ? " +
+                        "order by count(ful.user_id)", directorId);
+                            } else {
+                sqlRowSet = jdbcTemplate.queryForRowSet("select fd.film_id from directors d " +
+                        "join film_directors fd on d.director_id = fd.director_id " +
+                        "join film f on fd.film_id = f.film_id " +
+                        "group by d.director_id, fd.film_id, extract (year from f.release_date)" +
+                        "having d.director_id = ?" +
+                        "order by extract (year from f.release_date)", directorId);
+            }
+            List<Film> films = new LinkedList<>();
+            while (sqlRowSet.next()){
+                Film film = get(sqlRowSet.getInt("film_id"));
+                films.add(film);
+            }
+            return films;
+        } catch (Throwable e) {
+            throw new ValidationException(e.getMessage());
+        }
     }
 
     private void addGenreToFilm(int filmId, List<FilmGenre> genres) {
