@@ -22,16 +22,19 @@ public class FilmService {
     private final FilmStorage filmStorage;
     private final UserService userService;
     private final LikeStorage likeStorage;
+    private final EventService eventService;
 
     @Autowired
     public FilmService(
             @Qualifier("filmDbStorage") FilmStorage filmStorage,
             UserService userService,
-            LikeDao likeStorage
+            LikeDao likeStorage,
+            EventService eventService
     ) {
         this.filmStorage = filmStorage;
         this.userService = userService;
         this.likeStorage = likeStorage;
+        this.eventService = eventService;
     }
 
     public Film add(Film film) {
@@ -63,6 +66,7 @@ public class FilmService {
         userService.isExists(userId);
 
         likeStorage.addLike(id, userId);
+        eventService.addLikeEvent(id, userId);
     }
 
     public void deleteLike(int id, int userId) {
@@ -70,6 +74,7 @@ public class FilmService {
         userService.isExists(userId);
 
         likeStorage.deleteLike(id, userId);
+        eventService.deleteLikeEvent(id, userId);
     }
 
     public List<Film> getPopular(int count, int genreId, int year) {

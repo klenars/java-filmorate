@@ -6,8 +6,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ResourceNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.EventStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.FriendshipStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
@@ -27,14 +29,19 @@ public class UserService {
     private final UserStorage userStorage;
     private final FriendshipStorage friendshipStorage;
     private final FilmStorage filmStorage;
+    private final EventService eventService;
 
     @Autowired
-    public UserService(@Qualifier("userDbStorage") UserStorage userStorage,
-                       FriendshipStorage friendshipStorage,
-                       FilmStorage filmStorage) {
+    public UserService(
+            @Qualifier("userDbStorage") UserStorage userStorage,
+            FriendshipStorage friendshipStorage,
+            FilmStorage filmStorage,
+            EventService eventService
+    ) {
         this.userStorage = userStorage;
         this.friendshipStorage = friendshipStorage;
         this.filmStorage = filmStorage;
+        this.eventService = eventService;
     }
 
     public User add(User user) {
@@ -71,6 +78,7 @@ public class UserService {
         isExists(friendId);
 
         friendshipStorage.addFriend(id, friendId);
+        eventService.addFriendEvent(id, friendId);
     }
 
     public void deleteFriend(int id, int friendId) {
@@ -78,6 +86,7 @@ public class UserService {
         isExists(friendId);
 
         friendshipStorage.deleteFriend(id, friendId);
+        eventService.deleteFriendEvent(id, friendId);
     }
 
     public List<User> getAllFriends(int id) {
@@ -99,7 +108,8 @@ public class UserService {
             throw new ResourceNotFoundException(String.format("User with id: %d doesn't exist!", id));
         }
     }
-    public void deleteUserById(int userId){
+
+    public void deleteUserById(int userId) {
         isExists(userId);
         userStorage.deleteUserById(userId);
     }
@@ -143,6 +153,12 @@ public class UserService {
         return recommendation;
     }
 
+    public List<Event> getFeed(int userId) {
+        isExists(userId);
+
+        return eventService.getFeed(userId);
+    }
+
     private void validation(User user) {
         if (user.getName().isEmpty()) {
             user.setName(user.getLogin());
@@ -163,6 +179,4 @@ public class UserService {
             throw new ValidationException(errorMessage);
         }
     }
-
-
 }
