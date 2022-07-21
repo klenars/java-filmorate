@@ -101,6 +101,21 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
+    public List<Film> getCommonFilms(int userId, int friendId) {
+        String sql = "SELECT * " +
+                "FROM film " +
+                "WHERE film_id IN (" +
+                                "SELECT film_id " +
+                                "FROM film_user_like " +
+                                "WHERE user_id IN (?, ?) " +
+                                "GROUP BY film_id " +
+                                "HAVING COUNT(user_id) > 1)";
+
+
+        return jdbcTemplate.query(sql, this::mapRowToFilm, userId, friendId);
+    }
+
+    @Override
     public void deleteFilmById(int filmId) {
         String sqlQuery = "DELETE FROM film WHERE film_id = ?";
         jdbcTemplate.update(sqlQuery, filmId);

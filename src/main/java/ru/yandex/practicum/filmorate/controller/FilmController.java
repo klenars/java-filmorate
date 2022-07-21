@@ -1,15 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
@@ -74,5 +66,12 @@ public class FilmController {
         filmService.deleteFilmById(filmId);
     }
 
-    //TODO GET /films/director/:directorId?sortBy=[year, likes] список фильмов режиссера отсортированных по году выхода, лайкам
+    @GetMapping("/common")
+    public List<Film> getCommonFilms(
+            @RequestParam String userId,
+            @RequestParam String friendId) {
+        return filmService.getCommonFilms(Integer.parseInt(userId), Integer.parseInt(friendId));
+    }
 }
+
+    //TODO GET /films/director/:directorId?sortBy=[year, likes] список фильмов режиссера отсортированных по году выхода, лайкам

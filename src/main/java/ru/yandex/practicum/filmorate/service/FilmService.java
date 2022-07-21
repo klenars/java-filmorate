@@ -75,6 +75,13 @@ public class FilmService {
         return filmStorage.getPopular(count);
     }
 
+    public List<Film> getCommonFilms(int userId, int friendId) {
+        userService.isExists(userId);
+        userService.isExists(friendId);
+
+        return filmStorage.getCommonFilms(userId, friendId);
+    }
+
     public void deleteFilmById(int filmId) {
         isExists(filmId);
         filmStorage.deleteFilmById(filmId);
