@@ -49,14 +49,14 @@ public class EventService {
     }
 
     public void addReviewEvent(Review review) {
-        Event event = getBaseEvent(review.getUserId(), review.getFilmId());
+        Event event = getBaseEvent(review.getUserId(), review.getReviewId());
         event.setEventType("REVIEW");
         event.setOperation("ADD");
 
         eventStorage.add(event);
     }
     public void deleteReviewEvent(Review review) {
-        Event event = getBaseEvent(review.getUserId(), review.getFilmId());
+        Event event = getBaseEvent(review.getUserId(), review.getReviewId());
         event.setEventType("REVIEW");
         event.setOperation("REMOVE");
 
@@ -64,7 +64,7 @@ public class EventService {
     }
 
     public void updateReviewEvent(Review review) {
-        Event event = getBaseEvent(review.getUserId(), review.getFilmId());
+        Event event = getBaseEvent(review.getUserId(), review.getReviewId());
         event.setEventType("REVIEW");
         event.setOperation("UPDATE");
 
