@@ -66,8 +66,6 @@ public class FilmController {
         filmService.deleteFilmById(filmId);
     }
 
-    //GET /films/common?userId={userId}&friendId={friendId}
-
     @GetMapping("/common")
     public List<Film> getCommonFilms(
             @RequestParam String userId,
