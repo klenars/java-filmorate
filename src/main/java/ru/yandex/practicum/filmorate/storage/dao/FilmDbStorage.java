@@ -90,7 +90,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getPopular(int count) {
-        String sql = "SELECT ful.FILM_ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA_ID " +
+        String sql = "SELECT f.film_id, name, description, release_date, duration, mpa_id " +
                 "FROM film AS f " +
                 "LEFT JOIN film_user_like AS ful ON f.film_id = ful.film_id " +
                 "GROUP BY f.film_id " +
@@ -98,6 +98,49 @@ public class FilmDbStorage implements FilmStorage {
                 "LIMIT ?";
 
         return jdbcTemplate.query(sql, this::mapRowToFilm, count);
+    }
+
+    @Override
+    public List<Film> getPopularByGenre(int genreId, int count) {
+        String sql = "SELECT f.film_id, name, description, release_date, duration, mpa_id " +
+                "FROM film AS f " +
+                "LEFT JOIN film_user_like AS ful ON f.film_id = ful.film_id " +
+                "WHERE f.film_id in (SELECT film_id " +
+                "FROM film_genre AS fg " +
+                "WHERE genre_id = ?) " +
+                "GROUP BY f.film_id " +
+                "ORDER BY COUNT(ful.user_id) DESC " +
+                "LIMIT ?";
+
+        return jdbcTemplate.query(sql, this::mapRowToFilm, genreId, count);
+    }
+
+    @Override
+    public List<Film> getPopularByYear(int year, int count) {
+        String sql = "SELECT f.film_id, name, description, release_date, duration, mpa_id " +
+                "FROM film AS f " +
+                "LEFT JOIN film_user_like AS ful ON f.film_id = ful.film_id " +
+                "WHERE EXTRACT(YEAR FROM release_date) = ? " +
+                "GROUP BY f.film_id " +
+                "ORDER BY COUNT(ful.user_id) DESC " +
+                "LIMIT ?";
+
+        return jdbcTemplate.query(sql, this::mapRowToFilm, year, count);
+    }
+
+    @Override
+    public List<Film> getPopularByGenreAndYear(int genreId, int year, int count) {
+        String sql = "SELECT f.film_id, name, description, release_date, duration, mpa_id " +
+                "FROM film AS f " +
+                "LEFT JOIN film_user_like AS ful ON f.film_id = ful.film_id " +
+                "WHERE f.film_id in (SELECT film_id " +
+                "FROM film_genre AS fg " +
+                "WHERE genre_id = ?) AND EXTRACT(YEAR FROM release_date) = ? " +
+                "GROUP BY f.film_id " +
+                "ORDER BY COUNT(ful.user_id) DESC " +
+                "LIMIT ?";
+
+        return jdbcTemplate.query(sql, this::mapRowToFilm, genreId, year, count);
     }
 
     @Override
@@ -110,7 +153,6 @@ public class FilmDbStorage implements FilmStorage {
                                 "WHERE user_id IN (?, ?) " +
                                 "GROUP BY film_id " +
                                 "HAVING COUNT(user_id) > 1)";
-
 
         return jdbcTemplate.query(sql, this::mapRowToFilm, userId, friendId);
     }
@@ -167,6 +209,7 @@ public class FilmDbStorage implements FilmStorage {
             }
         }
     }
+
     private void deleteDirectors(int filmId) {
         String sqlQuery = "DELETE FROM film_directors WHERE film_id = ?";
         jdbcTemplate.update(sqlQuery, filmId);
