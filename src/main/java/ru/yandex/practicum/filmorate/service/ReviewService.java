@@ -27,7 +27,7 @@ public class ReviewService {
 
     public Review updateReview(Review review) {
         Review reviewAnswer = reviewStorage.updateReview(review);
-        eventService.updateReviewEvent(review);
+        eventService.updateReviewEvent(reviewAnswer);
         return reviewAnswer;
     }
 
