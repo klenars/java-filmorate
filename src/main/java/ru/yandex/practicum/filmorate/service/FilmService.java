@@ -60,9 +60,6 @@ public class FilmService {
         if (isNull(film.getDirectors()) | film.getDirectors().isEmpty()) {
             updatedFilm.setDirectors(null);
         }
-        if (isNull(film.getGenres()) | film.getGenres().isEmpty()) {
-            updatedFilm.setGenres(null);
-        }
         return updatedFilm;
     }
 
