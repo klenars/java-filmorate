@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.storage.EventStorage;
 
 import java.time.Instant;
@@ -47,11 +48,27 @@ public class EventService {
         eventStorage.add(event);
     }
 
-    public void addReviewEvent() {
-        //TODO
+    public void addReviewEvent(Review review) {
+        Event event = getBaseEvent(review.getUserId(), review.getFilmId());
+        event.setEventType("REVIEW");
+        event.setOperation("ADD");
+
+        eventStorage.add(event);
     }
-    public void deleteReviewEvent() {
-        //TODO
+    public void deleteReviewEvent(Review review) {
+        Event event = getBaseEvent(review.getUserId(), review.getFilmId());
+        event.setEventType("REVIEW");
+        event.setOperation("REMOVE");
+
+        eventStorage.add(event);
+    }
+
+    public void updateReviewEvent(Review review) {
+        Event event = getBaseEvent(review.getUserId(), review.getFilmId());
+        event.setEventType("REVIEW");
+        event.setOperation("UPDATE");
+
+        eventStorage.add(event);
     }
 
     public List<Event> getFeed(int userId) {

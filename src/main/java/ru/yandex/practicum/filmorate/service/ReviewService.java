@@ -10,22 +10,31 @@ import java.util.Set;
 @Service
 public class ReviewService {
     private final ReviewStorage reviewStorage;
+    private final EventService eventService;
 
     @Autowired
-    public ReviewService(ReviewStorage reviewStorage) {
+    public ReviewService(ReviewStorage reviewStorage,
+                         EventService eventService) {
         this.reviewStorage = reviewStorage;
+        this.eventService = eventService;
     }
 
     public Review addReview(Review review) {
-        return reviewStorage.addReview(review);
+        Review reviewAnswer = reviewStorage.addReview(review);
+        eventService.addReviewEvent(reviewAnswer);
+        return reviewAnswer;
     }
 
     public Review updateReview(Review review) {
-        return reviewStorage.updateReview(review);
+        Review reviewAnswer = reviewStorage.updateReview(review);
+        eventService.updateReviewEvent(review);
+        return reviewAnswer;
     }
 
     public void deleteReview(int id) {
+        Review review = getReview(id);
         reviewStorage.deleteReview(id);
+        eventService.deleteReviewEvent(review);
     }
 
     public Review getReview(int id) {
