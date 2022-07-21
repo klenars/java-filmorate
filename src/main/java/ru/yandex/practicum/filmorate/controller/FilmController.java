@@ -73,6 +73,13 @@ public class FilmController {
             @RequestParam String friendId) {
         return filmService.getCommonFilms(Integer.parseInt(userId), Integer.parseInt(friendId));
     }
+
+    @GetMapping("/search")
+    public List<Film> getFilmBySubstring(
+            @RequestParam(name = "query") String query,
+            @RequestParam(name = "by") String by) {
+        return filmService.getFilmBySubstring(query, by);
+    }
 }
 
 //TODO GET /films/director/:directorId?sortBy=[year, likes] список фильмов режиссера отсортированных по году выхода, лайкам
