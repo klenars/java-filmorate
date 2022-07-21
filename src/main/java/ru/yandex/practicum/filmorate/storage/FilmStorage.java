@@ -37,4 +37,6 @@ public interface FilmStorage {
     List<Film> getFilmBySubstringInTitle(String substring);
 
     List<Film> getFilmBySubstringInDirectorAndTitle(String substring);
+
+    List<Film> getDirectorFilmSortedByYearOrLikes(int directorId, String sort);
 }

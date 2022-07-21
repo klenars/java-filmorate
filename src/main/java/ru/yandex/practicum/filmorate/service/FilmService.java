@@ -15,6 +15,8 @@ import java.time.LocalDate;
 import java.util.LinkedList;
 import java.util.List;
 
+import static java.util.Objects.isNull;
+
 @Slf4j
 @Service
 public class FilmService {
@@ -54,7 +56,11 @@ public class FilmService {
         validation(film);
         filmStorage.update(film);
         log.info("Updated film id: {}", film.getId());
-        return getById(film.getId());
+        Film updatedFilm = getById(film.getId());
+        if (isNull(film.getDirectors()) | film.getDirectors().isEmpty()) {
+            updatedFilm.setDirectors(null);
+        }
+        return updatedFilm;
     }
 
     public List<Film> getAll() {
@@ -121,6 +127,10 @@ public class FilmService {
             log.warn(String.format("Film with id: %d doesn't exist!", id));
             throw new ResourceNotFoundException(String.format("Film with id: %d doesn't exist!", id));
         }
+    }
+
+    public List<Film> getDirectorFilmSortedByYearOrLikes(int directorId, String sort) {
+        return filmStorage.getDirectorFilmSortedByYearOrLikes(directorId,sort);
     }
 
     private void validation(Film film) {
