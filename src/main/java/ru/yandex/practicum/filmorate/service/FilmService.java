@@ -12,6 +12,7 @@ import ru.yandex.practicum.filmorate.storage.LikeStorage;
 import ru.yandex.practicum.filmorate.storage.dao.LikeDao;
 
 import java.time.LocalDate;
+import java.util.LinkedList;
 import java.util.List;
 
 @Slf4j
@@ -93,6 +94,21 @@ public class FilmService {
     public void deleteFilmById(int filmId) {
         isExists(filmId);
         filmStorage.deleteFilmById(filmId);
+    }
+
+    public List<Film> getFilmBySubstring(String substring, String by) {
+        List<Film> films = new LinkedList<>();
+        substring = "%" + substring + "%";
+        if (by.equals("director")) {
+            films = filmStorage.getFilmBySubstringInDirector(substring);
+        }
+        if (by.equals("title")) {
+            films = filmStorage.getFilmBySubstringInTitle(substring);
+        }
+        if ((by.equals("director,title")) || (by.equals("title,director"))) {
+            films = filmStorage.getFilmBySubstringInDirectorAndTitle(substring);
+        }
+        return films;
     }
 
     private void isExists(int id) {

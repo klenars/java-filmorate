@@ -148,11 +148,11 @@ public class FilmDbStorage implements FilmStorage {
         String sql = "SELECT * " +
                 "FROM film " +
                 "WHERE film_id IN (" +
-                                "SELECT film_id " +
-                                "FROM film_user_like " +
-                                "WHERE user_id IN (?, ?) " +
-                                "GROUP BY film_id " +
-                                "HAVING COUNT(user_id) > 1)";
+                "SELECT film_id " +
+                "FROM film_user_like " +
+                "WHERE user_id IN (?, ?) " +
+                "GROUP BY film_id " +
+                "HAVING COUNT(user_id) > 1)";
 
         return jdbcTemplate.query(sql, this::mapRowToFilm, userId, friendId);
     }
@@ -171,6 +171,46 @@ public class FilmDbStorage implements FilmStorage {
                 "WHERE ful.user_id = ?";
 
         return jdbcTemplate.query(sqlQuery, this::mapRowToFilm, userId);
+    }
+
+    @Override
+    public List<Film> getFilmBySubstringInDirector(String substring) {
+        String sqlQuery = "SELECT F.FILM_ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA_ID " +
+                "FROM FILM AS F " +
+                "LEFT JOIN FILM_USER_LIKE AS FUL ON F.FILM_ID = FUL.FILM_ID " +
+                "WHERE F.FILM_ID IN (" +
+                "SELECT FILM_ID FROM FILM_DIRECTORS WHERE DIRECTOR_ID IN (" +
+                "SELECT DIRECTOR_ID FROM DIRECTORS WHERE LOWER(NAME) LIKE LOWER(?)))" +
+                "GROUP BY F.FILM_ID " +
+                "ORDER BY COUNT(FUL.USER_ID) DESC";
+        return jdbcTemplate.query(sqlQuery, this::mapRowToFilm, substring);
+
+    }
+
+    @Override
+    public List<Film> getFilmBySubstringInTitle(String substring) {
+        String sqlQuery = "SELECT F.FILM_ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA_ID " +
+                "FROM FILM AS F " +
+                "LEFT JOIN FILM_USER_LIKE AS FUL ON F.FILM_ID = FUL.FILM_ID " +
+                "WHERE F.FILM_ID IN (" +
+                "SELECT FILM_ID FROM FILM WHERE LOWER(F.NAME) LIKE LOWER(?)) " +
+                "GROUP BY F.FILM_ID " +
+                "ORDER BY COUNT(FUL.USER_ID) DESC";
+        return jdbcTemplate.query(sqlQuery, this::mapRowToFilm, substring);
+    }
+
+    @Override
+    public List<Film> getFilmBySubstringInDirectorAndTitle(String substring) {
+        String sqlQuery = "SELECT F.FILM_ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA_ID " +
+                "FROM FILM AS F " +
+                "LEFT JOIN FILM_USER_LIKE FUL ON F.FILM_ID = FUL.FILM_ID " +
+                "WHERE F.FILM_ID  IN (" +
+                "SELECT FILM_ID FROM FILM_DIRECTORS WHERE DIRECTOR_ID IN (" +
+                "SELECT DIRECTOR_ID FROM DIRECTORS WHERE LOWER(NAME) LIKE LOWER(?)))" +
+                "OR LOWER(F.NAME) LIKE LOWER(?)" +
+                "GROUP BY F.FILM_ID " +
+                "ORDER BY COUNT(FUL.USER_ID) DESC";
+        return jdbcTemplate.query(sqlQuery, this::mapRowToFilm, substring, substring);
     }
 
     private void addGenreToFilm(int filmId, List<FilmGenre> genres) {
