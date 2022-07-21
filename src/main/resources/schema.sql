@@ -85,3 +85,16 @@ CREATE TABLE IF NOT EXISTS film_directors
         REFERENCES DIRECTORS (DIRECTOR_ID)
         ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS events
+(
+    event_id int PRIMARY KEY AUTO_INCREMENT,
+    timestamp long,
+    user_id int,
+    event_type varchar,
+    operation varchar,
+    entity_id int,
+    FOREIGN KEY (user_id) REFERENCES users (user_id),
+    CONSTRAINT ev_type CHECK (event_type IN ('LIKE', 'REVIEW', 'FRIEND')),
+    CONSTRAINT operation_type CHECK (operation IN ('REMOVE', 'ADD', 'UPDATE'))
+)
