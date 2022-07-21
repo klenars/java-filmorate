@@ -98,12 +98,12 @@ CREATE TABLE IF NOT EXISTS film_user_like
 CREATE TABLE IF NOT EXISTS directors
 (
     director_id int PRIMARY KEY AUTO_INCREMENT,
-    name   varchar UNIQUE
+    name        varchar UNIQUE
 );
 
 CREATE TABLE IF NOT EXISTS film_directors
 (
-    film_id  int,
+    film_id     int,
     director_id int,
     UNIQUE (film_id, director_id),
     CONSTRAINT "FK_FILM" FOREIGN KEY (FILM_ID)
@@ -116,13 +116,15 @@ CREATE TABLE IF NOT EXISTS film_directors
 
 CREATE TABLE IF NOT EXISTS events
 (
-    event_id int PRIMARY KEY AUTO_INCREMENT,
-    timestamp long,
-    user_id int,
+    event_id   int PRIMARY KEY AUTO_INCREMENT,
+    timestamp  long,
+    user_id    int,
     event_type varchar,
-    operation varchar,
-    entity_id int,
-    FOREIGN KEY (user_id) REFERENCES users (user_id),
+    operation  varchar,
+    entity_id  int,
+    CONSTRAINT fk_user FOREIGN KEY (user_id)
+        REFERENCES users (user_id)
+        ON DELETE CASCADE,
     CONSTRAINT ev_type CHECK (event_type IN ('LIKE', 'REVIEW', 'FRIEND')),
     CONSTRAINT operation_type CHECK (operation IN ('REMOVE', 'ADD', 'UPDATE'))
 )
