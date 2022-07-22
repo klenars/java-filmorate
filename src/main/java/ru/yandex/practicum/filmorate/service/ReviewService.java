@@ -1,40 +1,37 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.storage.EventStorage;
 import ru.yandex.practicum.filmorate.storage.ReviewStorage;
 
 import java.util.Set;
 
 @Service
+@RequiredArgsConstructor
 public class ReviewService {
-    private final ReviewStorage reviewStorage;
-    private final EventService eventService;
 
-    @Autowired
-    public ReviewService(ReviewStorage reviewStorage,
-                         EventService eventService) {
-        this.reviewStorage = reviewStorage;
-        this.eventService = eventService;
-    }
+    private final ReviewStorage reviewStorage;
+    private final EventStorage eventStorage;
 
     public Review addReview(Review review) {
         Review reviewAnswer = reviewStorage.addReview(review);
-        eventService.addReviewEvent(reviewAnswer);
+        eventStorage.addReviewEvent(reviewAnswer);
         return reviewAnswer;
     }
 
     public Review updateReview(Review review) {
         Review reviewAnswer = reviewStorage.updateReview(review);
-        eventService.updateReviewEvent(reviewAnswer);
+        eventStorage.updateReviewEvent(reviewAnswer);
         return reviewAnswer;
     }
 
     public void deleteReview(int id) {
         Review review = getReview(id);
         reviewStorage.deleteReview(id);
-        eventService.deleteReviewEvent(review);
+        eventStorage.deleteReviewEvent(review);
     }
 
     public Review getReview(int id) {

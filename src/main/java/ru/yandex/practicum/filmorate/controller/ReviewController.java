@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.service.ReviewService;
@@ -8,14 +8,11 @@ import ru.yandex.practicum.filmorate.service.ReviewService;
 import java.util.Set;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/reviews")
 public class ReviewController {
-    private final ReviewService reviewService;
 
-    @Autowired
-    public ReviewController(ReviewService reviewService) {
-        this.reviewService = reviewService;
-    }
+    private final ReviewService reviewService;
 
     @PostMapping
     public Review addReview(@RequestBody Review review) {
@@ -38,9 +35,9 @@ public class ReviewController {
     }
 
     @GetMapping
-    public Set<Review> getReviewsByFilmId(@RequestParam(defaultValue = "0") String filmId,
-                                          @RequestParam(defaultValue = "10") String count) {
-        return reviewService.getReviewsByFilmId(Integer.parseInt(filmId), Integer.parseInt(count));
+    public Set<Review> getReviewsByFilmId(@RequestParam(defaultValue = "0") int filmId,
+                                          @RequestParam(defaultValue = "10") int count) {
+        return reviewService.getReviewsByFilmId(filmId, count);
     }
 
     @PutMapping("/{id}/like/{userId}")

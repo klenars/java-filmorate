@@ -1,15 +1,14 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ResourceNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.EventStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.LikeStorage;
-import ru.yandex.practicum.filmorate.storage.dao.LikeDao;
 
 import java.time.LocalDate;
 import java.util.LinkedList;
@@ -19,25 +18,13 @@ import static java.util.Objects.isNull;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class FilmService {
 
     private final FilmStorage filmStorage;
     private final UserService userService;
     private final LikeStorage likeStorage;
-    private final EventService eventService;
-
-    @Autowired
-    public FilmService(
-            @Qualifier("filmDbStorage") FilmStorage filmStorage,
-            UserService userService,
-            LikeDao likeStorage,
-            EventService eventService
-    ) {
-        this.filmStorage = filmStorage;
-        this.userService = userService;
-        this.likeStorage = likeStorage;
-        this.eventService = eventService;
-    }
+    private final EventStorage eventStorage;
 
     public Film add(Film film) {
         validation(film);
@@ -72,7 +59,7 @@ public class FilmService {
         userService.isExists(userId);
 
         likeStorage.addLike(id, userId);
-        eventService.addLikeEvent(id, userId);
+        eventStorage.addLikeEvent(id, userId);
     }
 
     public void deleteLike(int id, int userId) {
@@ -80,7 +67,7 @@ public class FilmService {
         userService.isExists(userId);
 
         likeStorage.deleteLike(id, userId);
-        eventService.deleteLikeEvent(id, userId);
+        eventStorage.deleteLikeEvent(id, userId);
     }
 
     public List<Film> getPopular(int count, int genreId, int year) {

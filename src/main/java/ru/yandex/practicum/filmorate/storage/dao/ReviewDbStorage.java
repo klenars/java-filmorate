@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.dao;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -19,12 +20,10 @@ import java.util.TreeSet;
 
 @Slf4j
 @Repository
+@RequiredArgsConstructor
 public class ReviewDbStorage implements ReviewStorage {
-    private final JdbcTemplate jdbcTemplate;
 
-    public ReviewDbStorage(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
+    private final JdbcTemplate jdbcTemplate;
 
     @Override
     public Review addReview(Review review) {
@@ -93,8 +92,7 @@ public class ReviewDbStorage implements ReviewStorage {
         } else {
             reviews = jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeReview(rs), filmId, count);
         }
-        Set<Review> sortReviews = new TreeSet<>(reviews);
-        return sortReviews;
+        return new TreeSet<>(reviews);
     }
 
     @Override
@@ -142,8 +140,8 @@ public class ReviewDbStorage implements ReviewStorage {
 
     private void checkUser(int userId) {
         if (userId == 0) {
-            log.warn(String.format("User with id: ", userId));
-            throw new ValidationException(String.format("User with id: ", userId));
+            log.warn(String.format("User with id: %d", userId));
+            throw new ValidationException(String.format("User with id: %d", userId));
         }
         String sqlQuery = "SELECT * " +
                 "FROM USERS " +
@@ -156,8 +154,8 @@ public class ReviewDbStorage implements ReviewStorage {
 
     private void checkFilm(int filmId) {
         if (filmId == 0) {
-            log.warn(String.format("Film with id: ", filmId));
-            throw new ValidationException(String.format("Film with id: ", filmId));
+            log.warn(String.format("Film with id: %d", filmId));
+            throw new ValidationException(String.format("Film with id: %d", filmId));
         }
         String sqlQuery = "SELECT * " +
                 "FROM FILM " +
@@ -170,8 +168,8 @@ public class ReviewDbStorage implements ReviewStorage {
 
     private void checkPositiveNotNull(Boolean isPositive) {
         if (isPositive == null) {
-            log.warn(String.format("isPositive = null"));
-            throw new ValidationException(String.format("isPositive = null"));
+            log.warn("isPositive = null");
+            throw new ValidationException("isPositive = null");
         }
     }
 

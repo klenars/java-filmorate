@@ -1,32 +1,40 @@
 package ru.yandex.practicum.filmorate.storage.dao;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.ResourceNotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.storage.DirectorStorage;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
 @Slf4j
 @Repository
+@RequiredArgsConstructor
 public class DirectorDao implements DirectorStorage {
-    private final JdbcTemplate jdbcTemplate;
 
-    public DirectorDao(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
+    private final JdbcTemplate jdbcTemplate;
 
     @Override
     public void add(Director director) {
-        SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
-                .withTableName("directors")
-                .usingGeneratedKeyColumns("director_id");
-        director.setId(simpleJdbcInsert.executeAndReturnKey(director.toMap()).intValue());
+        String sql = "INSERT INTO DIRECTORS (NAME) " +
+                "VALUES (?)";
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+
+        jdbcTemplate.update(c -> {
+            PreparedStatement ps = c.prepareStatement(sql, new String[]{"director_id"});
+            ps.setString(1, director.getName());
+            return ps;
+        }, keyHolder);
+
+        director.setId(keyHolder.getKey().intValue());
     }
 
     @Override

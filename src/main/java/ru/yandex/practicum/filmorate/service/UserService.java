@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -24,25 +25,13 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
     private final UserStorage userStorage;
     private final FriendshipStorage friendshipStorage;
     private final FilmStorage filmStorage;
-    private final EventService eventService;
-
-    @Autowired
-    public UserService(
-            @Qualifier("userDbStorage") UserStorage userStorage,
-            FriendshipStorage friendshipStorage,
-            FilmStorage filmStorage,
-            EventService eventService
-    ) {
-        this.userStorage = userStorage;
-        this.friendshipStorage = friendshipStorage;
-        this.filmStorage = filmStorage;
-        this.eventService = eventService;
-    }
+    private final EventStorage eventStorage;
 
     public User add(User user) {
         validation(user);
@@ -78,7 +67,7 @@ public class UserService {
         isExists(friendId);
 
         friendshipStorage.addFriend(id, friendId);
-        eventService.addFriendEvent(id, friendId);
+        eventStorage.addFriendEvent(id, friendId);
     }
 
     public void deleteFriend(int id, int friendId) {
@@ -86,7 +75,7 @@ public class UserService {
         isExists(friendId);
 
         friendshipStorage.deleteFriend(id, friendId);
-        eventService.deleteFriendEvent(id, friendId);
+        eventStorage.deleteFriendEvent(id, friendId);
     }
 
     public List<User> getAllFriends(int id) {
@@ -156,7 +145,7 @@ public class UserService {
     public List<Event> getFeed(int userId) {
         isExists(userId);
 
-        return eventService.getFeed(userId);
+        return eventStorage.getFeed(userId);
     }
 
     private void validation(User user) {

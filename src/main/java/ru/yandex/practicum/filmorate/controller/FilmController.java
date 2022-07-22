@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -10,15 +10,11 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/films")
 public class FilmController {
 
     private final FilmService filmService;
-
-    @Autowired
-    public FilmController(FilmService filmService) {
-        this.filmService = filmService;
-    }
 
     @GetMapping("/{id}")
     public Film getById(@PathVariable int id) {
@@ -70,9 +66,9 @@ public class FilmController {
 
     @GetMapping("/common")
     public List<Film> getCommonFilms(
-            @RequestParam String userId,
-            @RequestParam String friendId) {
-        return filmService.getCommonFilms(Integer.parseInt(userId), Integer.parseInt(friendId));
+            @RequestParam int userId,
+            @RequestParam int friendId) {
+        return filmService.getCommonFilms(userId, friendId);
     }
 
     @GetMapping("/search")
