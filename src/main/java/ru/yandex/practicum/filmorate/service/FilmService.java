@@ -1,37 +1,30 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ResourceNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.EventStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.LikeStorage;
-import ru.yandex.practicum.filmorate.storage.dao.LikeDao;
 
 import java.time.LocalDate;
+import java.util.LinkedList;
 import java.util.List;
+
+import static java.util.Objects.isNull;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class FilmService {
 
     private final FilmStorage filmStorage;
     private final UserService userService;
     private final LikeStorage likeStorage;
-
-    @Autowired
-    public FilmService(
-            @Qualifier("filmDbStorage") FilmStorage filmStorage,
-            UserService userService,
-            LikeDao likeStorage
-    ) {
-        this.filmStorage = filmStorage;
-        this.userService = userService;
-        this.likeStorage = likeStorage;
-    }
+    private final EventStorage eventStorage;
 
     public Film add(Film film) {
         validation(film);
@@ -50,7 +43,11 @@ public class FilmService {
         validation(film);
         filmStorage.update(film);
         log.info("Updated film id: {}", film.getId());
-        return getById(film.getId());
+        Film updatedFilm = getById(film.getId());
+        if (isNull(film.getDirectors()) | film.getDirectors().isEmpty()) {
+            updatedFilm.setDirectors(null);
+        }
+        return updatedFilm;
     }
 
     public List<Film> getAll() {
@@ -62,6 +59,7 @@ public class FilmService {
         userService.isExists(userId);
 
         likeStorage.addLike(id, userId);
+        eventStorage.addLikeEvent(id, userId);
     }
 
     public void deleteLike(int id, int userId) {
@@ -69,10 +67,46 @@ public class FilmService {
         userService.isExists(userId);
 
         likeStorage.deleteLike(id, userId);
+        eventStorage.deleteLikeEvent(id, userId);
     }
 
-    public List<Film> getPopular(int count) {
-        return filmStorage.getPopular(count);
+    public List<Film> getPopular(int count, int genreId, int year) {
+        if (genreId == 0 && year == 0) {
+            return filmStorage.getPopular(count);
+        } else if (genreId != 0 && year != 0) {
+            return filmStorage.getPopularByGenreAndYear(genreId, year, count);
+        } else if (genreId != 0) {
+            return filmStorage.getPopularByGenre(genreId, count);
+        } else {
+            return filmStorage.getPopularByYear(year, count);
+        }
+    }
+
+    public List<Film> getCommonFilms(int userId, int friendId) {
+        userService.isExists(userId);
+        userService.isExists(friendId);
+
+        return filmStorage.getCommonFilms(userId, friendId);
+    }
+
+    public void deleteFilmById(int filmId) {
+        isExists(filmId);
+        filmStorage.deleteFilmById(filmId);
+    }
+
+    public List<Film> getFilmBySubstring(String substring, String by) {
+        List<Film> films = new LinkedList<>();
+        substring = "%" + substring + "%";
+        if (by.equals("director")) {
+            films = filmStorage.getFilmBySubstringInDirector(substring);
+        }
+        if (by.equals("title")) {
+            films = filmStorage.getFilmBySubstringInTitle(substring);
+        }
+        if ((by.equals("director,title")) || (by.equals("title,director"))) {
+            films = filmStorage.getFilmBySubstringInDirectorAndTitle(substring);
+        }
+        return films;
     }
 
     private void isExists(int id) {
@@ -80,6 +114,10 @@ public class FilmService {
             log.warn(String.format("Film with id: %d doesn't exist!", id));
             throw new ResourceNotFoundException(String.format("Film with id: %d doesn't exist!", id));
         }
+    }
+
+    public List<Film> getDirectorFilmSortedByYearOrLikes(int directorId, String sort) {
+        return filmStorage.getDirectorFilmSortedByYearOrLikes(directorId,sort);
     }
 
     private void validation(Film film) {
