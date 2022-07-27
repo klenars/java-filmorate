@@ -135,6 +135,7 @@ public class UserService {
             if (userListMap.get(userEntry.getKey()).size() > maxFreq) {
                 List<Film> diff = userListMap.get(userEntry.getKey());
                 diff.removeAll(userListFilm);
+
                 recommendation.addAll(diff);
             }
         }
