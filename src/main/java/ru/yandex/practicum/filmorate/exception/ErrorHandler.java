@@ -19,4 +19,5 @@ public class ErrorHandler {
     public ErrorResponse handleValidationError(final ValidationException exception) {
         return new ErrorResponse("Ошибка обработки запроса", exception.getMessage());
     }
+
 }
