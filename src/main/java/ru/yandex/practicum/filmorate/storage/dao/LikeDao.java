@@ -12,11 +12,11 @@ public class LikeDao implements LikeStorage {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public void addLike(int id, int userId) {
-        String sql = "INSERT INTO film_user_like (film_id, user_id) " +
-                "VALUES (?, ?)";
+    public void addLike(int id, int userId, int score) {
+        String sql = "INSERT INTO film_user_like (film_id, user_id, score) " +
+                "VALUES (?, ?, ?)";
 
-        jdbcTemplate.update(sql, id, userId);
+        jdbcTemplate.update(sql, id, userId, score);
     }
 
     @Override

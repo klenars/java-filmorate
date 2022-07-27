@@ -54,11 +54,12 @@ public class FilmService {
         return filmStorage.getAll();
     }
 
-    public void addLike(int id, int userId) {
+    //TODO
+    public void addLike(int id, int userId, int score) {
         isExists(id);
         userService.isExists(userId);
 
-        likeStorage.addLike(id, userId);
+        likeStorage.addLike(id, userId, score);
         eventStorage.addLikeEvent(id, userId);
     }
 
