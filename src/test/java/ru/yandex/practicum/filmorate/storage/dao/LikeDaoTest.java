@@ -46,8 +46,7 @@ class LikeDaoTest {
         testUser1.setEmail("test1@email.ru");
         testUser1.setBirthday(LocalDate.of(1984, 7, 15));
         userDbStorage.add(testUser1);
-
-        likeDao.addLike(filmToUpdate.getId(), testUser1.getId(), score);
+        likeDao.addLike(filmToUpdate.getId(), testUser1.getId(), 5);
 
         assertEquals(filmToUpdate.getId(), filmDbStorage.getPopular(5).get(0).getId());
     }
@@ -80,7 +79,7 @@ class LikeDaoTest {
 
         int id = filmDbStorage.getPopular(5).get(0).getId();
 
-        likeDao.addLike(filmToUpdate.getId(), testUser1.getId(), score);
+        likeDao.addLike(filmToUpdate.getId(), testUser1.getId(), 5);
 
         assertEquals(filmToUpdate.getId(), filmDbStorage.getPopular(5).get(0).getId());
 
