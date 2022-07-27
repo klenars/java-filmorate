@@ -48,8 +48,8 @@ public class FilmController {
             @PathVariable int id,
             @PathVariable int userId,
             @RequestParam
-            @Min(value = 1, message = "Оценка слишком низкая")
-            @Max(value = 10, message = "Оценка слишком высокая")
+            @Min(value = 1, message = "Score is too low. Score must be from 1 to 10")
+            @Max(value = 10, message = "Score is too high. Score must be from 1 to 10")
             int score
     ) {
         filmService.addLike(id, userId, score);
