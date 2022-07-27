@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Score;
 
 import java.util.List;
 
@@ -39,4 +40,5 @@ public interface FilmStorage {
     List<Film> getFilmBySubstringInDirectorAndTitle(String substring);
 
     List<Film> getDirectorFilmSortedByYearOrLikes(int directorId, String sort);
+    Score getScore(int filmId);
 }

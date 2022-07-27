@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.FilmGenre;
+import ru.yandex.practicum.filmorate.model.Score;
 import ru.yandex.practicum.filmorate.storage.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.GenreStorage;
@@ -108,26 +109,26 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getPopular(int count) {
-        String sql = "SELECT f.film_id, name, description, release_date, duration, mpa_id " +
-                "FROM film AS f " +
-                "LEFT JOIN film_user_like AS ful ON f.film_id = ful.film_id " +
-                "GROUP BY f.film_id " +
-                "ORDER BY COUNT(ful.user_id) DESC " +
+        String query = "SELECT F.FILM_ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA_ID, AVG(SCORE) " +
+                "FROM FILM AS F " +
+                "LEFT JOIN FILM_USER_LIKE AS FUL ON F.FILM_ID = FUL.FILM_ID " +
+                "GROUP BY F.FILM_ID " +
+                "ORDER BY AVG(SCORE) DESC " +
                 "LIMIT ?";
 
-        return jdbcTemplate.query(sql, this::mapRowToFilm, count);
+        return jdbcTemplate.query(query, this::mapRowToFilm, count);
     }
 
     @Override
     public List<Film> getPopularByGenre(int genreId, int count) {
-        String sql = "SELECT f.film_id, name, description, release_date, duration, mpa_id " +
+        String sql = "SELECT f.film_id, name, description, release_date, duration, mpa_id, AVG(ful.score) " +
                 "FROM film AS f " +
                 "LEFT JOIN film_user_like AS ful ON f.film_id = ful.film_id " +
                 "WHERE f.film_id in (SELECT film_id " +
                 "FROM film_genre AS fg " +
                 "WHERE genre_id = ?) " +
                 "GROUP BY f.film_id " +
-                "ORDER BY COUNT(ful.user_id) DESC " +
+                "ORDER BY AVG(ful.score) DESC " +
                 "LIMIT ?";
 
         return jdbcTemplate.query(sql, this::mapRowToFilm, genreId, count);
@@ -135,12 +136,12 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getPopularByYear(int year, int count) {
-        String sql = "SELECT f.film_id, name, description, release_date, duration, mpa_id " +
+        String sql = "SELECT f.film_id, name, description, release_date, duration, mpa_id, AVG(ful.score) " +
                 "FROM film AS f " +
                 "LEFT JOIN film_user_like AS ful ON f.film_id = ful.film_id " +
                 "WHERE EXTRACT(YEAR FROM release_date) = ? " +
                 "GROUP BY f.film_id " +
-                "ORDER BY COUNT(ful.user_id) DESC " +
+                "ORDER BY AVG(ful.score) DESC " +
                 "LIMIT ?";
 
         return jdbcTemplate.query(sql, this::mapRowToFilm, year, count);
@@ -148,14 +149,14 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getPopularByGenreAndYear(int genreId, int year, int count) {
-        String sql = "SELECT f.film_id, name, description, release_date, duration, mpa_id " +
+        String sql = "SELECT f.film_id, name, description, release_date, duration, mpa_id, AVG(ful.score) " +
                 "FROM film AS f " +
                 "LEFT JOIN film_user_like AS ful ON f.film_id = ful.film_id " +
                 "WHERE f.film_id in (SELECT film_id " +
                 "FROM film_genre AS fg " +
                 "WHERE genre_id = ?) AND EXTRACT(YEAR FROM release_date) = ? " +
                 "GROUP BY f.film_id " +
-                "ORDER BY COUNT(ful.user_id) DESC " +
+                "ORDER BY AVG(ful.score) DESC " +
                 "LIMIT ?";
 
         return jdbcTemplate.query(sql, this::mapRowToFilm, genreId, year, count);
@@ -193,33 +194,33 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getFilmBySubstringInDirector(String substring) {
-        String sqlQuery = "SELECT F.FILM_ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA_ID " +
+        String sqlQuery = "SELECT F.FILM_ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA_ID, AVG(ful.score) " +
                 "FROM FILM AS F " +
                 "LEFT JOIN FILM_USER_LIKE AS FUL ON F.FILM_ID = FUL.FILM_ID " +
                 "WHERE F.FILM_ID IN (" +
                 "SELECT FILM_ID FROM FILM_DIRECTORS WHERE DIRECTOR_ID IN (" +
                 "SELECT DIRECTOR_ID FROM DIRECTORS WHERE LOWER(NAME) LIKE LOWER(?)))" +
                 "GROUP BY F.FILM_ID " +
-                "ORDER BY COUNT(FUL.USER_ID) DESC";
+                "ORDER BY AVG(ful.score) DESC";
         return jdbcTemplate.query(sqlQuery, this::mapRowToFilm, substring);
 
     }
 
     @Override
     public List<Film> getFilmBySubstringInTitle(String substring) {
-        String sqlQuery = "SELECT F.FILM_ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA_ID " +
+        String sqlQuery = "SELECT F.FILM_ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA_ID, AVG(ful.score) " +
                 "FROM FILM AS F " +
                 "LEFT JOIN FILM_USER_LIKE AS FUL ON F.FILM_ID = FUL.FILM_ID " +
                 "WHERE F.FILM_ID IN (" +
                 "SELECT FILM_ID FROM FILM WHERE LOWER(F.NAME) LIKE LOWER(?)) " +
                 "GROUP BY F.FILM_ID " +
-                "ORDER BY COUNT(FUL.USER_ID) DESC";
+                "ORDER BY AVG(ful.score) DESC";
         return jdbcTemplate.query(sqlQuery, this::mapRowToFilm, substring);
     }
 
     @Override
     public List<Film> getFilmBySubstringInDirectorAndTitle(String substring) {
-        String sqlQuery = "SELECT F.FILM_ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA_ID " +
+        String sqlQuery = "SELECT F.FILM_ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA_ID, AVG(ful.score) " +
                 "FROM FILM AS F " +
                 "LEFT JOIN FILM_USER_LIKE FUL ON F.FILM_ID = FUL.FILM_ID " +
                 "WHERE F.FILM_ID  IN (" +
@@ -227,7 +228,7 @@ public class FilmDbStorage implements FilmStorage {
                 "SELECT DIRECTOR_ID FROM DIRECTORS WHERE LOWER(NAME) LIKE LOWER(?)))" +
                 "OR LOWER(F.NAME) LIKE LOWER(?)" +
                 "GROUP BY F.FILM_ID " +
-                "ORDER BY COUNT(FUL.USER_ID) DESC";
+                "ORDER BY AVG(ful.score) DESC";
         return jdbcTemplate.query(sqlQuery, this::mapRowToFilm, substring, substring);
     }
 
@@ -246,7 +247,7 @@ public class FilmDbStorage implements FilmStorage {
                         "group by fd.film_id, d.director_id  " +
                         "having  d.director_id = ? " +
                         "order by count(ful.user_id)", directorId);
-                            } else {
+            } else {
                 sqlRowSet = jdbcTemplate.queryForRowSet("select fd.film_id from directors d " +
                         "join film_directors fd on d.director_id = fd.director_id " +
                         "join film f on fd.film_id = f.film_id " +
@@ -255,7 +256,7 @@ public class FilmDbStorage implements FilmStorage {
                         "order by extract (year from f.release_date)", directorId);
             }
             List<Film> films = new LinkedList<>();
-            while (sqlRowSet.next()){
+            while (sqlRowSet.next()) {
                 Film film = get(sqlRowSet.getInt("film_id"));
                 films.add(film);
             }
@@ -263,6 +264,18 @@ public class FilmDbStorage implements FilmStorage {
         } catch (Throwable e) {
             throw new ValidationException(e.getMessage());
         }
+    }
+
+    @Override
+    public Score getScore(int filmId) {
+        String query = "SELECT AVG(SCORE) FROM FILM_USER_LIKE WHERE FILM_ID=? AND USER_ID IN (" +
+                "SELECT DISTINCT USER_ID FROM FILM_USER_LIKE)";
+        return jdbcTemplate.query(query,
+                        this::mapRowToScore,
+                        filmId)
+                .stream()
+                .findAny()
+                .orElse(null);
     }
 
     private void addGenreToFilm(int filmId, List<FilmGenre> genres) {
@@ -317,7 +330,15 @@ public class FilmDbStorage implements FilmStorage {
         film.setGenres(genreStorage.getFilmGenreList(film.getId()));
         film.setMpa(mpaStorage.getFilmRate(resultSet.getInt("mpa_id")));
         film.setDirectors(directorStorage.getFilmDirectorList(film.getId()));
-
+        film.setScore(getScore(film.getId()));
         return film;
     }
+
+    private Score mapRowToScore(ResultSet resultSet, int i) throws SQLException {
+        Score score = new Score();
+        score.setGrade(resultSet.getDouble(1));
+        return score;
+    }
+
+
 }
