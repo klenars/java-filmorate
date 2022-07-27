@@ -1,14 +1,21 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
+import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import java.util.List;
 
+@Validated
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/films")
@@ -40,7 +47,10 @@ public class FilmController {
     public void addLike(
             @PathVariable int id,
             @PathVariable int userId,
-            @RequestParam int score
+            @RequestParam
+            @Min(value = 1, message = "Оценка слишком низкая")
+            @Max(value = 10, message = "Оценка слишком высокая")
+            int score
     ) {
         filmService.addLike(id, userId, score);
     }
@@ -88,5 +98,10 @@ public class FilmController {
         } else {
             throw new ValidationException("Incorrect sorting parameter!");
         }
+    }
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<String> handleConstraintViolationException(ConstraintViolationException e) {
+        return new ResponseEntity<>("not valid due to validation error: " + e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 }
