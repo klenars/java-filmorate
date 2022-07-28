@@ -15,11 +15,7 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -90,7 +86,7 @@ public class UserService {
     }
 
     public void isExists(int id) {
-        if (!userStorage.isExists(id)) {
+        if (!userStorage.isExistById(id)) {
             log.warn(String.format("User with id: %d doesn't exist!", id));
             throw new ResourceNotFoundException(String.format("User with id: %d doesn't exist!", id));
         }

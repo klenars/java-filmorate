@@ -21,7 +21,7 @@ public class MpaDao implements MpaStorage {
 
     @Override
     public FilmRate getById(int id) {
-        if (!isExist(id)) {
+        if (!isExistById(id)) {
             String mes = String.format("Rate with id: %d doesn't exist!", id);
             log.warn(mes);
             throw new ResourceNotFoundException(mes);
@@ -59,7 +59,7 @@ public class MpaDao implements MpaStorage {
         return filmRate;
     }
 
-    private boolean isExist(int id) {
+    private boolean isExistById(int id) {
         String sqlQuery = "SELECT mpa_id " +
                 "FROM mpa " +
                 "WHERE mpa_id = ?";

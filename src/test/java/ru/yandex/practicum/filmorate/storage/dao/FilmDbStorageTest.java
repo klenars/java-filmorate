@@ -84,11 +84,11 @@ class FilmDbStorageTest {
 
         filmDbStorage.add(film);
 
-        assertTrue(filmDbStorage.isExist(film.getId()));
+        assertTrue(filmDbStorage.isExistById(film.getId()));
 
         filmDbStorage.delete(film);
 
-        assertFalse(filmDbStorage.isExist(film.getId()));
+        assertFalse(filmDbStorage.isExistById(film.getId()));
     }
 
     @Test
@@ -102,7 +102,7 @@ class FilmDbStorageTest {
 
         filmDbStorage.add(film);
 
-        assertTrue(filmDbStorage.isExist(film.getId()));
+        assertTrue(filmDbStorage.isExistById(film.getId()));
     }
 
     @Test

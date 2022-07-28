@@ -50,7 +50,7 @@ public class DirectorDao implements DirectorStorage {
 
     @Override
     public Director get(int directorId) {
-        if (!isExist(directorId)) {
+        if (!isExistById(directorId)) {
             String mes = String.format("Director with id: %d doesn't exist!", directorId);
             log.warn(mes);
             throw new ResourceNotFoundException(mes);
@@ -98,7 +98,7 @@ public class DirectorDao implements DirectorStorage {
         return director;
     }
 
-    public boolean isExist(int id) {
+    public boolean isExistById(int id) {
         String sqlQuery = "SELECT DIRECTOR_ID " +
                 "FROM DIRECTORS " +
                 "WHERE DIRECTOR_ID = ?";

@@ -21,7 +21,7 @@ public class GenreDao implements GenreStorage {
 
     @Override
     public FilmGenre getById(int id) {
-        if (!isExist(id)) {
+        if (!isExistById(id)) {
             String mes = String.format("Genre with id: %d doesn't exist!", id);
             log.warn(mes);
             throw new ResourceNotFoundException(mes);
@@ -62,7 +62,7 @@ public class GenreDao implements GenreStorage {
         return filmGenre;
     }
 
-    private boolean isExist(int id) {
+    private boolean isExistById(int id) {
         String sqlQuery = "SELECT GENRE_ID " +
                 "FROM GENRE " +
                 "WHERE GENRE_ID = ?";

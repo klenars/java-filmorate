@@ -63,7 +63,7 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public boolean isExists(int id) {
+    public boolean isExistById(int id) {
         String sqlQuery = "SELECT user_id " +
                 "FROM users " +
                 "WHERE user_id = ?";

@@ -18,5 +18,5 @@ public interface DirectorStorage {
 
     List<Director> getFilmDirectorList(int id);
 
-    boolean isExist(int id);
+    boolean isExistById(int id);
 }

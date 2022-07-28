@@ -91,7 +91,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public boolean isExist(int id) {
+    public boolean isExistById(int id) {
         String sqlQuery = "SELECT film_id " +
                 "FROM film " +
                 "WHERE film_id = ?";
@@ -234,7 +234,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getDirectorFilmSortedByYearOrLikes(int directorId, String sort) {
-        if (!directorStorage.isExist(directorId)) {
+        if (!directorStorage.isExistById(directorId)) {
             throw new ResourceNotFoundException(String.format("Director with id = %s doesn't exist!", directorId));
         }
         SqlRowSet sqlRowSet;

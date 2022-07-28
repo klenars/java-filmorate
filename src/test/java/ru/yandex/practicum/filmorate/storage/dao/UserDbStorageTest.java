@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.dao;
 
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -29,7 +28,7 @@ class UserDbStorageTest {
         testUser1.setBirthday(LocalDate.of(1984, 7, 15));
         userStorage.add(testUser1);
 
-        assertTrue(userStorage.isExists(testUser1.getId()));
+        assertTrue(userStorage.isExistById(testUser1.getId()));
     }
 
     @Test
@@ -79,8 +78,8 @@ class UserDbStorageTest {
         testUser1.setBirthday(LocalDate.of(1984, 7, 15));
         userStorage.add(testUser1);
 
-        assertFalse(userStorage.isExists(-1));
-        assertTrue(userStorage.isExists(testUser1.getId()));
+        assertFalse(userStorage.isExistById(-1));
+        assertTrue(userStorage.isExistById(testUser1.getId()));
     }
 
     @Test
@@ -92,11 +91,11 @@ class UserDbStorageTest {
         testUser2.setBirthday(LocalDate.of(1980, 8, 16));
         userStorage.add(testUser2);
 
-        assertTrue(userStorage.isExists(testUser2.getId()));
+        assertTrue(userStorage.isExistById(testUser2.getId()));
 
         userStorage.delete(testUser2);
 
-        assertFalse(userStorage.isExists(testUser2.getId()));
+        assertFalse(userStorage.isExistById(testUser2.getId()));
     }
 
     @Test
