@@ -184,7 +184,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getFilmsLikeUser(int userId) {
-        String sqlQuery = "SELECT * " +
+        String sqlQuery = "SELECT F.FILM_ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA_ID, AVG(ful.score) " +
                 "FROM film AS f " +
                 "LEFT JOIN film_user_like AS ful ON f.film_id = ful.film_id " +
                 "WHERE ful.user_id = ?";
@@ -235,7 +235,7 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> getDirectorFilmSortedByYearOrLikes(int directorId, String sort) {
         if (!directorStorage.isExist(directorId)) {
-            throw new ResourceNotFoundException(String.format("Режиссер с id = %s не найден", directorId));
+            throw new ResourceNotFoundException(String.format("Director with id = %s doesn't exist!", directorId));
         }
         SqlRowSet sqlRowSet;
         try {
@@ -246,7 +246,7 @@ public class FilmDbStorage implements FilmStorage {
                         "left join film_user_like ful on ful.film_id = f.film_id " +
                         "group by fd.film_id, d.director_id  " +
                         "having  d.director_id = ? " +
-                        "order by count(ful.user_id)", directorId);
+                        "order by avg(ful.user_id)", directorId);
             } else {
                 sqlRowSet = jdbcTemplate.queryForRowSet("select fd.film_id from directors d " +
                         "join film_directors fd on d.director_id = fd.director_id " +

@@ -5,6 +5,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
@@ -72,8 +73,12 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public void delete(User user) {
-        String sqlQuery = "DELETE FROM users WHERE user_id = ?";
-        jdbcTemplate.update(sqlQuery, user.getId());
+        try{
+            String sqlQuery = "DELETE FROM users WHERE user_id = ?";
+            jdbcTemplate.update(sqlQuery, user.getId());
+        } catch (Throwable e) {
+             throw new ValidationException(e.getMessage());
+        }
     }
 
     @Override
