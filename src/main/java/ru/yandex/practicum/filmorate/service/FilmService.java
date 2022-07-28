@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.EventStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.LikeStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
 import java.util.LinkedList;
@@ -22,7 +23,7 @@ import static java.util.Objects.isNull;
 public class FilmService {
 
     private final FilmStorage filmStorage;
-    private final UserService userService;
+    private final UserStorage userStorage;
     private final LikeStorage likeStorage;
     private final EventStorage eventStorage;
 
@@ -54,10 +55,9 @@ public class FilmService {
         return filmStorage.getAll();
     }
 
-    //TODO
     public void addLike(int id, int userId, int score) {
         isExists(id);
-        userService.isExists(userId);
+        isUserExists(userId);
 
         likeStorage.addLike(id, userId, score);
         eventStorage.addLikeEvent(id, userId);
@@ -65,7 +65,7 @@ public class FilmService {
 
     public void deleteLike(int id, int userId) {
         isExists(id);
-        userService.isExists(userId);
+        isUserExists(userId);
 
         likeStorage.deleteLike(id, userId);
         eventStorage.deleteLikeEvent(id, userId);
@@ -84,8 +84,8 @@ public class FilmService {
     }
 
     public List<Film> getCommonFilms(int userId, int friendId) {
-        userService.isExists(userId);
-        userService.isExists(friendId);
+        isUserExists(userId);
+        isUserExists(friendId);
 
         return filmStorage.getCommonFilms(userId, friendId);
     }
@@ -114,6 +114,13 @@ public class FilmService {
         if (!filmStorage.isExist(id)) {
             log.warn(String.format("Film with id: %d doesn't exist!", id));
             throw new ResourceNotFoundException(String.format("Film with id: %d doesn't exist!", id));
+        }
+    }
+
+    private void isUserExists(int userId) {
+        if (!userStorage.isExists(userId)) {
+            log.warn(String.format("User with id: %d doesn't exist!", userId));
+            throw new ResourceNotFoundException(String.format("User with id: %d doesn't exist!", userId));
         }
     }
 
