@@ -93,12 +93,12 @@ public class FilmController {
     public List<Film> getDirectorFilmSortedByYearOrLikes(
             @PathVariable int directorId,
             @RequestParam String sortBy) {
-        if (sortBy.equalsIgnoreCase("year") | sortBy.equalsIgnoreCase("likes")) {
-            return filmService.getDirectorFilmSortedByYearOrLikes(directorId, sortBy);
-        } else {
+        if (!sortBy.equalsIgnoreCase("year") && !sortBy.equalsIgnoreCase("likes")) {
             throw new ValidationException("Incorrect sorting parameter!");
         }
+        return filmService.getDirectorFilmSortedByYearOrLikes(directorId, sortBy);
     }
+
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<String> handleConstraintViolationException(ConstraintViolationException e) {
