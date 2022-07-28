@@ -2,8 +2,6 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ResourceNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -106,41 +104,7 @@ public class UserService {
     public List<Film> getRecommendations(int id) {
         isExists(id);
 
-        User user = getById(id);
-        List<Film> userListFilm = filmStorage.getFilmsLikeUser(id);
-
-        List<User> allUsers = getAll();
-        allUsers.remove(user);
-
-        Map<User, List<Film>> userListMap = allUsers.stream()
-                .collect(Collectors.toMap(Function.identity(), u -> filmStorage.getFilmsLikeUser(u.getId())));
-
-        int maxFreq = 0;
-        Map<User, Integer> sameUser = new HashMap<>();
-        for (Map.Entry<User, List<Film>> entry : userListMap.entrySet()) {
-            int freq = 0;
-            for (Film film : entry.getValue()) {
-                if (userListFilm.contains(film)) {
-                    freq++;
-                }
-            }
-            if (freq > maxFreq) {
-                maxFreq = freq;
-            }
-            sameUser.put(entry.getKey(), freq);
-        }
-
-        List<Film> recommendation = new ArrayList<>();
-        for (Map.Entry<User, Integer> userEntry : sameUser.entrySet()) {
-            if (userListMap.get(userEntry.getKey()).size() > maxFreq) {
-                List<Film> diff = userListMap.get(userEntry.getKey());
-                diff.removeAll(userListFilm);
-
-                recommendation.addAll(diff);
-            }
-        }
-
-        return recommendation;
+        return filmStorage.getRecommendations(id);
     }
 
     public List<Event> getFeed(int userId) {
