@@ -20,6 +20,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -285,53 +286,76 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> getRecommendations(int id) {
-        String sqlQuery = "SELECT DISTINCT F.FILM_ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA_ID " +
-                "FROM FILM AS F " +
-                "         JOIN FILM_USER_LIKE AS FUL ON F.FILM_ID = FUL.FILM_ID " +
-                "WHERE FUL.USER_ID IN ( " +
-                "    SELECT USER_ID " +
-                "    FROM FILM_USER_LIKE " +
-                "    WHERE FILM_ID IN " +
-                "          (SELECT FILM_ID " +
-                "           FROM FILM_USER_LIKE " +
-                "           WHERE USER_ID = ? " +
-                "             AND SCORE > 5) " +
-                "        AND SCORE > 5 " +
-                "       OR FILM_ID IN " +
-                "          (SELECT FILM_ID " +
-                "           FROM FILM_USER_LIKE " +
-                "           WHERE USER_ID = ? " +
-                "             AND SCORE <= 5) " +
-                "        AND SCORE <= 5 " +
-                "    GROUP BY USER_ID " +
-                "    HAVING COUNT(FILM_ID) = ( " +
-                "        SELECT MAX(MAX_COUNT) " +
-                "        FROM (SELECT COUNT(FILM_ID) AS MAX_COUNT " +
-                "              FROM FILM_USER_LIKE " +
-                "              WHERE FILM_ID IN " +
-                "                    (SELECT FILM_ID " +
-                "                     FROM FILM_USER_LIKE " +
-                "                     WHERE USER_ID = ? " +
-                "                       AND SCORE > 5) " +
-                "                  AND SCORE > 5 " +
-                "                 OR FILM_ID IN " +
-                "                    (SELECT FILM_ID " +
-                "                     FROM FILM_USER_LIKE " +
-                "                     WHERE USER_ID = ? " +
-                "                       AND SCORE <= 5) " +
-                "                  AND SCORE <= 5 " +
-                "              GROUP BY USER_ID " +
-                "              HAVING USER_ID != ?) " +
-                "        ) " +
-                "    ) " +
-                "  AND FUL.FILM_ID NOT IN " +
-                "      (SELECT FILM_ID " +
-                "       FROM FILM_USER_LIKE AS FUL " +
-                "       WHERE USER_ID = ? ) " +
-                "  AND SCORE > 5";
+    public List<Film> getRecommendations(int userId) {
 
-        return jdbcTemplate.query(sqlQuery, this::mapRowToFilm, id, id, id, id, id, id);
+        //получаем список id фильмов пользователя с отрицательными оценками
+        SqlRowSet sqlIdFilmsNegative = jdbcTemplate.queryForRowSet("SELECT FILM_ID " +
+                "FROM FILM_USER_LIKE " +
+                "WHERE USER_ID = ? " +
+                "AND SCORE <= 5", userId);
+        List<Integer> idFilmsNegative = new ArrayList<>();
+        while (sqlIdFilmsNegative.next()) {
+            idFilmsNegative.add(sqlIdFilmsNegative.getInt("film_id"));
+        }
+
+        //получаем список id фильмов пользователя с положительными оценками
+        SqlRowSet sqlIdFilmsPositive = jdbcTemplate.queryForRowSet("SELECT FILM_ID " +
+                "FROM FILM_USER_LIKE " +
+                "WHERE USER_ID = ? " +
+                "AND SCORE > 5", userId);
+        List<Integer> idFilmsPositive = new ArrayList<>();
+        while (sqlIdFilmsPositive.next()) {
+            idFilmsPositive.add(sqlIdFilmsPositive.getInt("film_id"));
+        }
+
+        String inSqlNegative = String.join(",", Collections.nCopies(idFilmsNegative.size(), "?"));
+        String inSqlPositive = String.join(",", Collections.nCopies(idFilmsPositive.size(), "?"));
+
+        //получаем кол-во фильмов у каждого пользователя с оценками похожими на оценки пользователя с id = userId
+        SqlRowSet sqlCount = jdbcTemplate.queryForRowSet(
+                String.format("SELECT COUNT(FILM_ID) " +
+                        "FROM FILM_USER_LIKE " +
+                        "WHERE FILM_ID IN (%s) AND SCORE > 5 " +
+                        "OR FILM_ID IN (%s) AND SCORE <= 5 " +
+                        "GROUP BY USER_ID " +
+                        "HAVING USER_ID != ?", inSqlPositive, inSqlNegative), userId);
+
+        //при разборе ответа на запрос сразу определяем максимальное из полученных значений -
+        // максимальное кол-во фильмов, по которому есть аналогичные оценки у другого пользователя
+        int maxCount = 0;
+        while (sqlCount.next()) {
+            int count = sqlCount.getInt("COUNT(FILM_ID)");
+            if (maxCount < count) {
+                maxCount = count;
+            }
+        }
+
+        //получение списка id пользователей с максимальным пересечением по оценкам
+        SqlRowSet sqlUserIds = jdbcTemplate.queryForRowSet(
+                String.format("SELECT USER_ID " +
+                        "FROM FILM_USER_LIKE " +
+                        "WHERE FILM_ID IN (%s) AND SCORE > 5 " +
+                        "OR FILM_ID IN (%s) AND SCORE <= 5 " +
+                        "GROUP BY USER_ID " +
+                        "HAVING COUNT(FILM_ID) = ?", inSqlPositive, inSqlNegative), maxCount);
+        List<Integer> idUsers = new ArrayList<>();
+        while (sqlUserIds.next()) {
+            idUsers.add(sqlUserIds.getInt("user_id"));
+        }
+
+        //получение списка фильмов пользователей с похожими оценками
+        String inSqlUsers = String.join(",", Collections.nCopies(idUsers.size(), "?"));
+        List<Film> films = jdbcTemplate.query(
+                String.format("SELECT F.FILM_ID, F.NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA_ID, AVG(FUL.SCORE) " +
+                        "FROM FILM AS F " +
+                        "LEFT JOIN FILM_USER_LIKE AS FUL ON F.FILM_ID = FUL.FILM_ID " +
+                        "WHERE FUL.USER_ID IN (%s)" +
+                        "AND AVG(FUL.SCORE) > 5", inSqlUsers), this::mapRowToFilm, idUsers.toArray());
+
+        //удаление из полученного списка фильмов, к которым пользователь уже поставил оценки
+        films.removeAll(getFilmsLikeUser(userId));
+
+        return films;
     }
 
     private void addGenreToFilm(int filmId, List<FilmGenre> genres) {
