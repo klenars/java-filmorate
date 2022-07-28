@@ -192,12 +192,12 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getFilmBySubstringInDirector(String substring) {
-        String sqlQuery = "SELECT F.FILM_ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA_ID, AVG(ful.score) " +
+        String sqlQuery = "SELECT F.FILM_ID, f.NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA_ID, AVG(ful.score) " +
                 "FROM FILM AS F " +
                 "LEFT JOIN FILM_USER_LIKE AS FUL ON F.FILM_ID = FUL.FILM_ID " +
-                "WHERE F.FILM_ID IN (" +
-                "SELECT FILM_ID FROM FILM_DIRECTORS WHERE DIRECTOR_ID IN (" +
-                "SELECT DIRECTOR_ID FROM DIRECTORS WHERE LOWER(NAME) LIKE LOWER(?)))" +
+                "LEFT JOIN film_directors fd on f.film_id = fd.film_id " +
+                "LEFT JOIN DIRECTORS d on fd.director_id = d.director_id " +
+                "WHERE LOWER(d.name) LIKE LOWER(?) " +
                 "GROUP BY F.FILM_ID " +
                 "ORDER BY AVG(ful.score) DESC";
         return jdbcTemplate.query(sqlQuery, this::mapRowToFilm, substring);
@@ -206,11 +206,10 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getFilmBySubstringInTitle(String substring) {
-        String sqlQuery = "SELECT F.FILM_ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA_ID, AVG(ful.score) " +
+        String sqlQuery = "SELECT F.FILM_ID, f.NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA_ID, AVG(ful.score) " +
                 "FROM FILM AS F " +
                 "LEFT JOIN FILM_USER_LIKE AS FUL ON F.FILM_ID = FUL.FILM_ID " +
-                "WHERE F.FILM_ID IN (" +
-                "SELECT FILM_ID FROM FILM WHERE LOWER(F.NAME) LIKE LOWER(?)) " +
+                "WHERE LOWER(F.NAME) LIKE LOWER(?) " +
                 "GROUP BY F.FILM_ID " +
                 "ORDER BY AVG(ful.score) DESC";
         return jdbcTemplate.query(sqlQuery, this::mapRowToFilm, substring);
@@ -218,13 +217,13 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getFilmBySubstringInDirectorAndTitle(String substring) {
-        String sqlQuery = "SELECT F.FILM_ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA_ID, AVG(ful.score) " +
+        String sqlQuery = "SELECT F.FILM_ID, f.NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA_ID, AVG(ful.score) " +
                 "FROM FILM AS F " +
                 "LEFT JOIN FILM_USER_LIKE FUL ON F.FILM_ID = FUL.FILM_ID " +
-                "WHERE F.FILM_ID  IN (" +
-                "SELECT FILM_ID FROM FILM_DIRECTORS WHERE DIRECTOR_ID IN (" +
-                "SELECT DIRECTOR_ID FROM DIRECTORS WHERE LOWER(NAME) LIKE LOWER(?)))" +
-                "OR LOWER(F.NAME) LIKE LOWER(?)" +
+                "left join FILM_DIRECTORS fd on f.film_id = fd.film_id  " +
+                "left join DIRECTORS d on fd.director_id = d.director_id " +
+                "WHERE LOWER(d.NAME) LIKE LOWER(?) " +
+                "and LOWER(F.NAME) LIKE LOWER(?) " +
                 "GROUP BY F.FILM_ID " +
                 "ORDER BY AVG(ful.score) DESC";
         return jdbcTemplate.query(sqlQuery, this::mapRowToFilm, substring, substring);
