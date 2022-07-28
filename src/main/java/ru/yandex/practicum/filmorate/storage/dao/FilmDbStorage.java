@@ -278,6 +278,56 @@ public class FilmDbStorage implements FilmStorage {
                 .orElse(null);
     }
 
+    @Override
+    public List<Film> getRecommendations(int id) {
+        String sqlQuery = "SELECT DISTINCT F.FILM_ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA_ID " +
+                "FROM FILM AS F " +
+                "         JOIN FILM_USER_LIKE AS FUL ON F.FILM_ID = FUL.FILM_ID " +
+                "WHERE FUL.USER_ID IN ( " +
+                "    SELECT USER_ID " +
+                "    FROM FILM_USER_LIKE " +
+                "    WHERE FILM_ID IN " +
+                "          (SELECT FILM_ID " +
+                "           FROM FILM_USER_LIKE " +
+                "           WHERE USER_ID = ? " +
+                "             AND SCORE > 5) " +
+                "        AND SCORE > 5 " +
+                "       OR FILM_ID IN " +
+                "          (SELECT FILM_ID " +
+                "           FROM FILM_USER_LIKE " +
+                "           WHERE USER_ID = ? " +
+                "             AND SCORE <= 5) " +
+                "        AND SCORE <= 5 " +
+                "    GROUP BY USER_ID " +
+                "    HAVING COUNT(FILM_ID) = ( " +
+                "        SELECT MAX(MAX_COUNT) " +
+                "        FROM (SELECT COUNT(FILM_ID) AS MAX_COUNT " +
+                "              FROM FILM_USER_LIKE " +
+                "              WHERE FILM_ID IN " +
+                "                    (SELECT FILM_ID " +
+                "                     FROM FILM_USER_LIKE " +
+                "                     WHERE USER_ID = ? " +
+                "                       AND SCORE > 5) " +
+                "                  AND SCORE > 5 " +
+                "                 OR FILM_ID IN " +
+                "                    (SELECT FILM_ID " +
+                "                     FROM FILM_USER_LIKE " +
+                "                     WHERE USER_ID = ? " +
+                "                       AND SCORE <= 5) " +
+                "                  AND SCORE <= 5 " +
+                "              GROUP BY USER_ID " +
+                "              HAVING USER_ID != ?) " +
+                "        ) " +
+                "    ) " +
+                "  AND FUL.FILM_ID NOT IN " +
+                "      (SELECT FILM_ID " +
+                "       FROM FILM_USER_LIKE AS FUL " +
+                "       WHERE USER_ID = ? ) " +
+                "  AND SCORE > 5";
+
+        return jdbcTemplate.query(sqlQuery, this::mapRowToFilm, id, id, id, id, id, id);
+    }
+
     private void addGenreToFilm(int filmId, List<FilmGenre> genres) {
         deleteGenre(filmId);
 

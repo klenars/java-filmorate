@@ -41,4 +41,6 @@ public interface FilmStorage {
 
     List<Film> getDirectorFilmSortedByYearOrLikes(int directorId, String sort);
     Score getScore(int filmId);
+
+    List<Film> getRecommendations(int id);
 }
