@@ -6,17 +6,17 @@ import java.util.List;
 
 public interface DirectorStorage {
 
-    void add(Director director);                // Добавить режиссера
+    void add(Director director);
 
-    void update(Director director);             // Обновить режиссера
+    void update(Director director);
 
-    Director get(int id);                       // Получить режиссера по id
+    Director get(int id);
 
-    List<Director> getAll();                    // Получить список всех режиссеров
+    List<Director> getAll();
 
-    void deleteDirectorById(int userId);        // Удалить режиссера по id
+    void deleteDirectorById(int userId);
 
-    List<Director> getFilmDirectorList(int id); // Получить список режиссеров фильма по id фильма
+    List<Director> getFilmDirectorList(int id);
 
-    boolean isExist(int id);                    // Проверить существование в базе режиссера по id
+    boolean isExist(int id);
 }
