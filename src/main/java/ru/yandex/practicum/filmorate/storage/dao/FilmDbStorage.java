@@ -124,9 +124,8 @@ public class FilmDbStorage implements FilmStorage {
         String sql = "SELECT f.film_id, name, description, release_date, duration, mpa_id, AVG(ful.score) " +
                 "FROM film AS f " +
                 "LEFT JOIN film_user_like AS ful ON f.film_id = ful.film_id " +
-                "WHERE f.film_id in (SELECT film_id " +
-                "FROM film_genre AS fg " +
-                "WHERE genre_id = ?) " +
+                "LEFT JOIN film_genre fg ON ful.film_id = fg.film_id " +
+                "WHERE fg.genre_id = ? " +
                 "GROUP BY f.film_id " +
                 "ORDER BY AVG(ful.score) DESC " +
                 "LIMIT ?";
@@ -152,9 +151,8 @@ public class FilmDbStorage implements FilmStorage {
         String sql = "SELECT f.film_id, name, description, release_date, duration, mpa_id, AVG(ful.score) " +
                 "FROM film AS f " +
                 "LEFT JOIN film_user_like AS ful ON f.film_id = ful.film_id " +
-                "WHERE f.film_id in (SELECT film_id " +
-                "FROM film_genre AS fg " +
-                "WHERE genre_id = ?) AND EXTRACT(YEAR FROM release_date) = ? " +
+                "LEFT JOIN film_genre AS fg ON ful.film_id = fg.film_id" +
+                "WHERE genre_id = ? AND EXTRACT(YEAR FROM release_date) = ? " +
                 "GROUP BY f.film_id " +
                 "ORDER BY AVG(ful.score) DESC " +
                 "LIMIT ?";
