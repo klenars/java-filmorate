@@ -281,7 +281,7 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> getRecommendations(int id) {
         String sqlQuery = "SELECT DISTINCT F.FILM_ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA_ID " +
-                "FROM FILM AS F\n" +
+                "FROM FILM AS F " +
                 "         JOIN FILM_USER_LIKE AS FUL ON F.FILM_ID = FUL.FILM_ID " +
                 "WHERE FUL.USER_ID IN ( " +
                 "    SELECT USER_ID " +
