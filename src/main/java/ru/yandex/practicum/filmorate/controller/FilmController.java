@@ -47,7 +47,7 @@ public class FilmController {
     public void addLike(
             @PathVariable int id,
             @PathVariable int userId,
-            @RequestParam
+            @RequestParam(defaultValue = "10")
             @Min(value = 1, message = "Score is too low. Score must be from 1 to 10")
             @Max(value = 10, message = "Score is too high. Score must be from 1 to 10")
             int score
