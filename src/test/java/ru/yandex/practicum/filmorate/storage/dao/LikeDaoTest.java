@@ -48,7 +48,7 @@ class LikeDaoTest {
         userDbStorage.add(testUser1);
         likeDao.addLike(filmToUpdate.getId(), testUser1.getId(), 5);
 
-        assertEquals(filmToUpdate.getId(), filmDbStorage.getPopular(5).get(0).getId());
+        assertEquals(5.0, filmDbStorage.get(filmToUpdate.getId()).getScore());
     }
 
     @Test
@@ -81,7 +81,7 @@ class LikeDaoTest {
 
         likeDao.addLike(filmToUpdate.getId(), testUser1.getId(), 5);
 
-        assertEquals(filmToUpdate.getId(), filmDbStorage.getPopular(5).get(0).getId());
+        assertEquals(5.0, filmDbStorage.get(filmToUpdate.getId()).getScore());
 
         likeDao.deleteLike(filmToUpdate.getId(), testUser1.getId());
 
