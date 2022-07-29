@@ -35,12 +35,12 @@ public class UserService {
     }
 
     public User getById(int id) {
-        isExists(id);
+        checkUserExist(id);
         return userStorage.get(id);
     }
 
     public User update(User user) {
-        isExists(user.getId());
+        checkUserExist(user.getId());
         validation(user);
         userStorage.update(user);
         log.info("Updated user id: {}", user.getId());
@@ -52,58 +52,58 @@ public class UserService {
     }
 
     public void delete(User user) {
-        isExists(user.getId());
+        checkUserExist(user.getId());
         userStorage.delete(user);
     }
 
     public void addFriend(int id, int friendId) {
-        isExists(id);
-        isExists(friendId);
+        checkUserExist(id);
+        checkUserExist(friendId);
 
         friendshipStorage.addFriend(id, friendId);
         eventStorage.addFriendEvent(id, friendId);
     }
 
     public void deleteFriend(int id, int friendId) {
-        isExists(id);
-        isExists(friendId);
+        checkUserExist(id);
+        checkUserExist(friendId);
 
         friendshipStorage.deleteFriend(id, friendId);
         eventStorage.deleteFriendEvent(id, friendId);
     }
 
     public List<User> getAllFriends(int id) {
-        isExists(id);
+        checkUserExist(id);
 
         return friendshipStorage.getAllFriends(id);
     }
 
     public List<User> getCommonFriends(int id, int otherId) {
-        isExists(id);
-        isExists(otherId);
+        checkUserExist(id);
+        checkUserExist(otherId);
 
         return friendshipStorage.getCommonFriends(id, otherId);
     }
 
-    public void isExists(int id) {
+    public void checkUserExist(int id) {
         if (!userStorage.isExistById(id)) {
             throw new ResourceNotFoundException(String.format("User with id: %d doesn't exist!", id));
         }
     }
 
     public void deleteUserById(int userId) {
-        isExists(userId);
+        checkUserExist(userId);
         userStorage.deleteUserById(userId);
     }
 
     public List<Film> getRecommendations(int id) {
-        isExists(id);
+        checkUserExist(id);
 
         return filmStorage.getRecommendations(id);
     }
 
     public List<Event> getFeed(int userId) {
-        isExists(userId);
+        checkUserExist(userId);
 
         return eventStorage.getFeed(userId);
     }
