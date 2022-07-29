@@ -30,5 +30,6 @@ public class Film {
     private List<FilmGenre> genres = new ArrayList<>();
 
     private List<Director> directors = new ArrayList<>();
+
     private Score score;
 }

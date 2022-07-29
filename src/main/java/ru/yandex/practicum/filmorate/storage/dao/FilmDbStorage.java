@@ -186,7 +186,8 @@ public class FilmDbStorage implements FilmStorage {
         String sqlQuery = "SELECT F.FILM_ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA_ID, AVG(FUL.SCORE) " +
                 "FROM FILM AS F " +
                 "LEFT JOIN FILM_USER_LIKE AS FUL ON F.FILM_ID = FUL.FILM_ID " +
-                "WHERE FUL.USER_ID = ?";
+                "WHERE FUL.USER_ID = ? " +
+                "GROUP BY F.FILM_ID";
 
         return jdbcTemplate.query(sqlQuery, this::mapRowToFilm, userId);
     }
@@ -293,9 +294,9 @@ public class FilmDbStorage implements FilmStorage {
                 "FROM FILM_USER_LIKE " +
                 "WHERE USER_ID = ? " +
                 "AND SCORE <= 5", userId);
-        List<Integer> idFilmsNegative = new ArrayList<>();
+        List<String> idFilmsNegative = new ArrayList<>();
         while (sqlIdFilmsNegative.next()) {
-            idFilmsNegative.add(sqlIdFilmsNegative.getInt("film_id"));
+            idFilmsNegative.add(String.valueOf(sqlIdFilmsNegative.getInt("film_id")));
         }
 
         //получаем список id фильмов пользователя с положительными оценками
@@ -303,13 +304,13 @@ public class FilmDbStorage implements FilmStorage {
                 "FROM FILM_USER_LIKE " +
                 "WHERE USER_ID = ? " +
                 "AND SCORE > 5", userId);
-        List<Integer> idFilmsPositive = new ArrayList<>();
+        List<String> idFilmsPositive = new ArrayList<>();
         while (sqlIdFilmsPositive.next()) {
-            idFilmsPositive.add(sqlIdFilmsPositive.getInt("film_id"));
+            idFilmsPositive.add(String.valueOf(sqlIdFilmsPositive.getInt("film_id")));
         }
 
-        String inSqlNegative = String.join(",", Collections.nCopies(idFilmsNegative.size(), "?"));
-        String inSqlPositive = String.join(",", Collections.nCopies(idFilmsPositive.size(), "?"));
+        String inSqlNegative = String.join(",", idFilmsNegative);
+        String inSqlPositive = String.join(",", idFilmsPositive);
 
         //получаем кол-во фильмов у каждого пользователя с оценками похожими на оценки пользователя с id = userId
         SqlRowSet sqlCount = jdbcTemplate.queryForRowSet(
@@ -338,19 +339,20 @@ public class FilmDbStorage implements FilmStorage {
                         "OR FILM_ID IN (%s) AND SCORE <= 5 " +
                         "GROUP BY USER_ID " +
                         "HAVING COUNT(FILM_ID) = ?", inSqlPositive, inSqlNegative), maxCount);
-        List<Integer> idUsers = new ArrayList<>();
+        List<String> idUsers = new ArrayList<>();
         while (sqlUserIds.next()) {
-            idUsers.add(sqlUserIds.getInt("user_id"));
+            idUsers.add(String.valueOf(sqlUserIds.getInt("user_id")));
         }
 
         //получение списка фильмов пользователей с похожими оценками
-        String inSqlUsers = String.join(",", Collections.nCopies(idUsers.size(), "?"));
+        String inSqlUsers = String.join(",", idUsers);
         List<Film> films = jdbcTemplate.query(
                 String.format("SELECT F.FILM_ID, F.NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA_ID, AVG(FUL.SCORE) " +
                         "FROM FILM AS F " +
                         "LEFT JOIN FILM_USER_LIKE AS FUL ON F.FILM_ID = FUL.FILM_ID " +
-                        "WHERE FUL.USER_ID IN (%s)" +
-                        "AND AVG(FUL.SCORE) > 5", inSqlUsers), this::mapRowToFilm, idUsers.toArray());
+                        "WHERE FUL.USER_ID IN (%s) " +
+                        "GROUP BY F.FILM_ID " +
+                        "HAVING AVG(FUL.SCORE) > 5", inSqlUsers), this::mapRowToFilm);
 
         //удаление из полученного списка фильмов, к которым пользователь уже поставил оценки
         films.removeAll(getFilmsLikeUser(userId));
