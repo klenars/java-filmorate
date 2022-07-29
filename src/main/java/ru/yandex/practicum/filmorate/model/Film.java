@@ -31,5 +31,5 @@ public class Film {
 
     private List<Director> directors = new ArrayList<>();
 
-    private Score score;
+    private Double score;
 }

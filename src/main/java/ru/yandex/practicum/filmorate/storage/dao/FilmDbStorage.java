@@ -10,7 +10,6 @@ import ru.yandex.practicum.filmorate.exception.ResourceNotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.FilmGenre;
-import ru.yandex.practicum.filmorate.model.Score;
 import ru.yandex.practicum.filmorate.storage.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.GenreStorage;
@@ -275,18 +274,6 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Score getScore(int filmId) {
-        String query = "SELECT AVG(SCORE) FROM FILM_USER_LIKE WHERE FILM_ID=? AND USER_ID IN (" +
-                "SELECT DISTINCT USER_ID FROM FILM_USER_LIKE)";
-        return jdbcTemplate.query(query,
-                        this::mapRowToScore,
-                        filmId)
-                .stream()
-                .findAny()
-                .orElse(null);
-    }
-
-    @Override
     public List<Film> getRecommendations(int userId) {
 
         //получаем список id фильмов пользователя с отрицательными оценками
@@ -402,7 +389,7 @@ public class FilmDbStorage implements FilmStorage {
         jdbcTemplate.update(sqlQuery, filmId);
     }
 
-    protected Film mapRowToFilm(ResultSet resultSet, int i) throws SQLException {
+    private Film mapRowToFilm(ResultSet resultSet, int i) throws SQLException {
         Film film = new Film();
         film.setId(resultSet.getInt("film_id"));
         film.setName(resultSet.getString("name"));
@@ -416,9 +403,9 @@ public class FilmDbStorage implements FilmStorage {
         return film;
     }
 
-    private Score mapRowToScore(ResultSet resultSet, int i) throws SQLException {
-        Score score = new Score();
-        score.setGrade(resultSet.getDouble(1));
-        return score;
+    private Double getScore(int filmId) {
+        String query = "SELECT AVG(SCORE) FROM FILM_USER_LIKE WHERE FILM_ID=? AND USER_ID IN (" +
+                "SELECT DISTINCT USER_ID FROM FILM_USER_LIKE)";
+        return jdbcTemplate.queryForObject(query, Double.class, filmId);
     }
 }
