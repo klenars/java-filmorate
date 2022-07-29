@@ -44,7 +44,7 @@ public class GenreDao implements GenreStorage {
     public List<FilmGenre> getFilmGenreList(int filmId) {
         String sqlQuery = "SELECT * " +
                 "FROM genre AS g " +
-                "LEFT JOIN film_genre AS fg ON g.genre_id = fg.genre_id " +
+                "JOIN film_genre AS fg ON g.genre_id = fg.genre_id " +
                 "WHERE fg.film_id = ? " +
                 "ORDER BY g.genre_id";
 

@@ -82,7 +82,7 @@ public class DirectorDao implements DirectorStorage {
 
             String sqlQuery = "SELECT * " +
                     "FROM directors AS d " +
-                    "LEFT JOIN film_directors AS fd ON d.director_id = fd.director_id " +
+                    "JOIN film_directors AS fd ON d.director_id = fd.director_id " +
                     "WHERE fd.film_id = ? " +
                     "ORDER BY d.director_id";
 

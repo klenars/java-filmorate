@@ -123,7 +123,7 @@ public class FilmDbStorage implements FilmStorage {
     public List<Film> getPopularByGenre(int genreId, int count) {
         String sql = "SELECT F.FILM_ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA_ID, SCORE " +
                 "FROM FILM AS F " +
-                "LEFT JOIN FILM_GENRE AS FG ON F.FILM_ID = FG.FILM_ID " +
+                "JOIN FILM_GENRE AS FG ON F.FILM_ID = FG.FILM_ID " +
                 "WHERE FG.GENRE_ID = ? " +
                 "ORDER BY SCORE DESC " +
                 "LIMIT ?";
@@ -146,7 +146,7 @@ public class FilmDbStorage implements FilmStorage {
     public List<Film> getPopularByGenreAndYear(int genreId, int year, int count) {
         String sql = "SELECT F.FILM_ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA_ID, SCORE " +
                 "FROM FILM AS F " +
-                "LEFT JOIN FILM_GENRE AS FG ON F.FILM_ID = FG.FILM_ID" +
+                "JOIN FILM_GENRE AS FG ON F.FILM_ID = FG.FILM_ID" +
                 "WHERE GENRE_ID = ? AND EXTRACT(YEAR FROM RELEASE_DATE) = ? " +
                 "ORDER BY SCORE DESC " +
                 "LIMIT ?";
@@ -158,7 +158,7 @@ public class FilmDbStorage implements FilmStorage {
     public List<Film> getCommonFilms(int userId, int friendId) {
         String sql = "SELECT F.FILM_ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA_ID, SCORE " +
                 "FROM FILM AS F" +
-                "LEFT JOIN FILM_USER_LIKE AS FUL ON F.FILM_ID = FUL.FILM_ID " +
+                "JOIN FILM_USER_LIKE AS FUL ON F.FILM_ID = FUL.FILM_ID " +
                 "WHERE USER_ID IN (?, ?) " +
                 "GROUP BY F.FILM_ID " +
                 "HAVING COUNT(USER_ID) > 1";
@@ -176,7 +176,7 @@ public class FilmDbStorage implements FilmStorage {
     public List<Film> getFilmsLikeUser(int userId) {
         String sqlQuery = "SELECT F.FILM_ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA_ID, F.SCORE " +
                 "FROM FILM AS F " +
-                "LEFT JOIN FILM_USER_LIKE AS FUL ON F.FILM_ID = FUL.FILM_ID " +
+                "JOIN FILM_USER_LIKE AS FUL ON F.FILM_ID = FUL.FILM_ID " +
                 "WHERE FUL.USER_ID = ? " +
                 "GROUP BY F.FILM_ID";
 
@@ -187,8 +187,8 @@ public class FilmDbStorage implements FilmStorage {
     public List<Film> getFilmBySubstringInDirector(String substring) {
         String sqlQuery = "SELECT F.FILM_ID, F.NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA_ID, SCORE " +
                 "FROM FILM AS F " +
-                "LEFT JOIN FILM_DIRECTORS AS FD ON F.FILM_ID = FD.FILM_ID " +
-                "LEFT JOIN DIRECTORS AS D ON FD.DIRECTOR_ID = D.DIRECTOR_ID " +
+                "JOIN FILM_DIRECTORS AS FD ON F.FILM_ID = FD.FILM_ID " +
+                "JOIN DIRECTORS AS D ON FD.DIRECTOR_ID = D.DIRECTOR_ID " +
                 "WHERE LOWER(D.NAME) LIKE LOWER(?) " +
                 "GROUP BY F.FILM_ID " +
                 "ORDER BY SCORE DESC";
@@ -209,8 +209,8 @@ public class FilmDbStorage implements FilmStorage {
     public List<Film> getFilmBySubstringInDirectorAndTitle(String substring) {
         String sqlQuery = "SELECT F.FILM_ID, F.NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA_ID, SCORE " +
                 "FROM FILM AS F " +
-                "LEFT JOIN FILM_DIRECTORS AS FD ON F.FILM_ID = FD.FILM_ID  " +
-                "LEFT JOIN DIRECTORS AS D ON FD.DIRECTOR_ID = D.DIRECTOR_ID " +
+                "JOIN FILM_DIRECTORS AS FD ON F.FILM_ID = FD.FILM_ID  " +
+                "JOIN DIRECTORS AS D ON FD.DIRECTOR_ID = D.DIRECTOR_ID " +
                 "WHERE LOWER(d.NAME) LIKE LOWER(?) " +
                 "AND LOWER(F.NAME) LIKE LOWER(?) " +
                 "ORDER BY SCORE DESC";
@@ -225,15 +225,15 @@ public class FilmDbStorage implements FilmStorage {
         SqlRowSet sqlRowSet;
         if (sort.equals("likes")) {
             sqlRowSet = jdbcTemplate.queryForRowSet("SELECT FD.FILM_ID FROM DIRECTORS AS D " +
-                    "LEFT JOIN FILM_DIRECTORS AS FD ON D.DIRECTOR_ID = FD.DIRECTOR_ID " +
-                    "LEFT JOIN FILM AS F ON FD.FILM_ID = F.FILM_ID " +
+                    "JOIN FILM_DIRECTORS AS FD ON D.DIRECTOR_ID = FD.DIRECTOR_ID " +
+                    "JOIN FILM AS F ON FD.FILM_ID = F.FILM_ID " +
                     "GROUP BY FD.FILM_ID, D.DIRECTOR_ID  " +
                     "HAVING D.DIRECTOR_ID = ? " +
                     "ORDER BY SCORE", directorId);
         } else {
             sqlRowSet = jdbcTemplate.queryForRowSet("SELECT FD.FILM_ID FROM DIRECTORS AS D " +
-                    "LEFT JOIN FILM_DIRECTORS AS FD ON D.DIRECTOR_ID = FD.DIRECTOR_ID " +
-                    "LEFT JOIN FILM AS F ON FD.FILM_ID = F.FILM_ID " +
+                    "JOIN FILM_DIRECTORS AS FD ON D.DIRECTOR_ID = FD.DIRECTOR_ID " +
+                    "JOIN FILM AS F ON FD.FILM_ID = F.FILM_ID " +
                     "GROUP BY D.DIRECTOR_ID, FD.FILM_ID, EXTRACT (YEAR FROM F.RELEASE_DATE)" +
                     "HAVING D.DIRECTOR_ID = ?" +
                     "ORDER BY EXTRACT (YEAR FROM F.RELEASE_DATE)", directorId);
