@@ -87,7 +87,6 @@ public class UserService {
 
     public void isExists(int id) {
         if (!userStorage.isExistById(id)) {
-            log.warn(String.format("User with id: %d doesn't exist!", id));
             throw new ResourceNotFoundException(String.format("User with id: %d doesn't exist!", id));
         }
     }
@@ -125,7 +124,6 @@ public class UserService {
         }
 
         if (errorMessage != null) {
-            log.warn(errorMessage);
             throw new ValidationException(errorMessage);
         }
     }

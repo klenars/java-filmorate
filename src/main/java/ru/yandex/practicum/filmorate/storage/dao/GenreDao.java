@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.dao;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.ResourceNotFoundException;
@@ -12,7 +11,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class GenreDao implements GenreStorage {
@@ -23,7 +21,6 @@ public class GenreDao implements GenreStorage {
     public FilmGenre getById(int id) {
         if (!isExistById(id)) {
             String mes = String.format("Genre with id: %d doesn't exist!", id);
-            log.warn(mes);
             throw new ResourceNotFoundException(mes);
         }
 

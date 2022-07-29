@@ -52,7 +52,6 @@ public class DirectorDao implements DirectorStorage {
     public Director get(int directorId) {
         if (!isExistById(directorId)) {
             String mes = String.format("Director with id: %d doesn't exist!", directorId);
-            log.warn(mes);
             throw new ResourceNotFoundException(mes);
         }
 

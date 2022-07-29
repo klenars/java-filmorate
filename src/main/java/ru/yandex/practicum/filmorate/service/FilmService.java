@@ -112,14 +112,12 @@ public class FilmService {
 
     private void isExists(int id) {
         if (!filmStorage.isExistById(id)) {
-            log.warn(String.format("Film with id: %d doesn't exist!", id));
             throw new ResourceNotFoundException(String.format("Film with id: %d doesn't exist!", id));
         }
     }
 
     private void isUserExists(int userId) {
         if (!userStorage.isExistById(userId)) {
-            log.warn(String.format("User with id: %d doesn't exist!", userId));
             throw new ResourceNotFoundException(String.format("User with id: %d doesn't exist!", userId));
         }
     }
@@ -144,7 +142,6 @@ public class FilmService {
         }
 
         if (errorMessage != null) {
-            log.warn(errorMessage);
             throw new ValidationException(errorMessage);
         }
     }

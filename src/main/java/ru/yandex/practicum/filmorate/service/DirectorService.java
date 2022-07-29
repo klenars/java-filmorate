@@ -48,7 +48,6 @@ public class DirectorService {
 
     private void isExist(int id) {
         if (!directorStorage.isExistById(id)) {
-            log.warn(String.format("Director with id: %d doesn't exist!", id));
             throw new ResourceNotFoundException(String.format("Director with id: %d doesn't exist!", id));
         }
     }
@@ -61,7 +60,6 @@ public class DirectorService {
         }
 
         if (errorMessage != null) {
-            log.warn(errorMessage);
             throw new ValidationException(errorMessage);
         }
     }
