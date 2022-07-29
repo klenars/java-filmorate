@@ -17,6 +17,7 @@ public class LikeDao implements LikeStorage {
                 "VALUES (?, ?, ?)";
 
         jdbcTemplate.update(sql, id, userId, score);
+        updateScore(id);
     }
 
     @Override
@@ -25,5 +26,19 @@ public class LikeDao implements LikeStorage {
                 "WHERE film_id = ? AND user_id = ?";
 
         jdbcTemplate.update(sql, id, userId);
+        updateScore(id);
+    }
+
+    private void updateScore(int filmId) {
+        String query =
+                "UPDATE FILM " +
+                "SET SCORE = " +
+                    "(SELECT AVG(SCORE) " +
+                    "FROM FILM_USER_LIKE " +
+                    "WHERE FILM_ID = ? " +
+                    "GROUP BY FILM_ID) " +
+                "WHERE FILM_ID = ?";
+
+        jdbcTemplate.update(query, filmId, filmId);
     }
 }

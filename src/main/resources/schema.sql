@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS film
     release_date date,
     duration     int,
     mpa_id       int,
+    score        double,
     FOREIGN KEY (mpa_id) REFERENCES mpa (mpa_id)
 );
 
@@ -87,7 +88,7 @@ CREATE TABLE IF NOT EXISTS film_user_like
 (
     film_id int,
     user_id int,
-    score int,
+    score   int,
     PRIMARY KEY (film_id, user_id),
     CONSTRAINT "FK_LIKE" FOREIGN KEY (FILM_ID)
         REFERENCES film (FILM_ID)
