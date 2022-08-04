@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.dao;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -18,7 +17,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class ReviewDbStorage implements ReviewStorage {
@@ -133,42 +131,36 @@ public class ReviewDbStorage implements ReviewStorage {
                 "FROM REVIEWS " +
                 "WHERE REVIEW_ID = ?";
         if (!jdbcTemplate.queryForRowSet(sqlQuery, reviewId).next()) {
-            log.warn(String.format("Review with id: %d doesn't exist!", reviewId));
             throw new ResourceNotFoundException(String.format("Review with id: %d doesn't exist!", reviewId));
         }
     }
 
     private void checkUser(int userId) {
         if (userId == 0) {
-            log.warn(String.format("User with id: %d", userId));
             throw new ValidationException(String.format("User with id: %d", userId));
         }
         String sqlQuery = "SELECT * " +
                 "FROM USERS " +
                 "WHERE USER_ID = ?";
         if (!jdbcTemplate.queryForRowSet(sqlQuery, userId).next()) {
-            log.warn(String.format("User with id: %d doesn't exist!", userId));
             throw new ResourceNotFoundException(String.format("User with id: %d doesn't exist!", userId));
         }
     }
 
     private void checkFilm(int filmId) {
         if (filmId == 0) {
-            log.warn(String.format("Film with id: %d", filmId));
             throw new ValidationException(String.format("Film with id: %d", filmId));
         }
         String sqlQuery = "SELECT * " +
                 "FROM FILM " +
                 "WHERE FIlM_ID = ?";
         if (!jdbcTemplate.queryForRowSet(sqlQuery, filmId).next()) {
-            log.warn(String.format("Film with id: %d doesn't exist!", filmId));
             throw new ResourceNotFoundException(String.format("Film with id: %d doesn't exist!", filmId));
         }
     }
 
     private void checkPositiveNotNull(Boolean isPositive) {
         if (isPositive == null) {
-            log.warn("isPositive = null");
             throw new ValidationException("isPositive = null");
         }
     }

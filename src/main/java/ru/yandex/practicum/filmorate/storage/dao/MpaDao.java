@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.dao;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.ResourceNotFoundException;
@@ -12,7 +11,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class MpaDao implements MpaStorage {
@@ -21,9 +19,8 @@ public class MpaDao implements MpaStorage {
 
     @Override
     public FilmRate getById(int id) {
-        if (!isExist(id)) {
+        if (!isExistById(id)) {
             String mes = String.format("Rate with id: %d doesn't exist!", id);
-            log.warn(mes);
             throw new ResourceNotFoundException(mes);
         }
 
@@ -59,7 +56,7 @@ public class MpaDao implements MpaStorage {
         return filmRate;
     }
 
-    private boolean isExist(int id) {
+    private boolean isExistById(int id) {
         String sqlQuery = "SELECT mpa_id " +
                 "FROM mpa " +
                 "WHERE mpa_id = ?";

@@ -25,7 +25,7 @@ public class DirectorService {
     }
 
     public Director update(Director director){
-        isExist(director.getId());
+        checkDirectorExist(director.getId());
         validation(director);
         directorStorage.update(director);
         log.info("Updated director id: {}", director.getId());
@@ -33,7 +33,7 @@ public class DirectorService {
     }
 
     public Director getById(int id) {
-        isExist(id);
+        checkDirectorExist(id);
         return directorStorage.get(id);
     }
 
@@ -42,13 +42,12 @@ public class DirectorService {
     }
 
     public void deleteDirectorById(int directorId) {
-        isExist(directorId);
+        checkDirectorExist(directorId);
         directorStorage.deleteDirectorById(directorId);
     }
 
-    private void isExist(int id) {
-        if (!directorStorage.isExist(id)) {
-            log.warn(String.format("Director with id: %d doesn't exist!", id));
+    private void checkDirectorExist(int id) {
+        if (!directorStorage.isExistById(id)) {
             throw new ResourceNotFoundException(String.format("Director with id: %d doesn't exist!", id));
         }
     }
@@ -61,7 +60,6 @@ public class DirectorService {
         }
 
         if (errorMessage != null) {
-            log.warn(errorMessage);
             throw new ValidationException(errorMessage);
         }
     }

@@ -62,7 +62,7 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public boolean isExists(int id) {
+    public boolean isExistById(int id) {
         String sqlQuery = "SELECT user_id " +
                 "FROM users " +
                 "WHERE user_id = ?";
@@ -72,8 +72,8 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public void delete(User user) {
-        String sqlQuery = "DELETE FROM users WHERE user_id = ?";
-        jdbcTemplate.update(sqlQuery, user.getId());
+            String sqlQuery = "DELETE FROM users WHERE user_id = ?";
+            jdbcTemplate.update(sqlQuery, user.getId());
     }
 
     @Override

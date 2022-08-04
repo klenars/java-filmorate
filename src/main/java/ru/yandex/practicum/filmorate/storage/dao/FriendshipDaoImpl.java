@@ -36,7 +36,7 @@ public class FriendshipDaoImpl implements FriendshipStorage {
     public List<User> getAllFriends(int id) {
         String sqlQuery = "SELECT * " +
                 "FROM users AS u " +
-                "LEFT JOIN user_friend AS uf ON u.user_id = uf.friend_id " +
+                "JOIN user_friend AS uf ON u.user_id = uf.friend_id " +
                 "WHERE uf.user_id = ?";
 
         return jdbcTemplate.query(sqlQuery, this::mapRowToUser, id);

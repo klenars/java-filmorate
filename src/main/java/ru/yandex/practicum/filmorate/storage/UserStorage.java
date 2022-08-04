@@ -14,7 +14,7 @@ public interface UserStorage {
 
     User get(int id);
 
-    boolean isExists(int id);
+    boolean isExistById(int id);
 
     List<User> getAll();
     void deleteUserById(int userId);

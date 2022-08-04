@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.EventStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.LikeStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
 import java.util.LinkedList;
@@ -22,7 +23,7 @@ import static java.util.Objects.isNull;
 public class FilmService {
 
     private final FilmStorage filmStorage;
-    private final UserService userService;
+    private final UserStorage userStorage;
     private final LikeStorage likeStorage;
     private final EventStorage eventStorage;
 
@@ -34,12 +35,12 @@ public class FilmService {
     }
 
     public Film getById(int id) {
-        isExists(id);
+        checkFilmExist(id);
         return filmStorage.get(id);
     }
 
     public Film update(Film film) {
-        isExists(film.getId());
+        checkFilmExist(film.getId());
         validation(film);
         filmStorage.update(film);
         log.info("Updated film id: {}", film.getId());
@@ -54,17 +55,17 @@ public class FilmService {
         return filmStorage.getAll();
     }
 
-    public void addLike(int id, int userId) {
-        isExists(id);
-        userService.isExists(userId);
+    public void addLike(int id, int userId, int score) {
+        checkFilmExist(id);
+        checkUserExist(userId);
 
-        likeStorage.addLike(id, userId);
+        likeStorage.addLike(id, userId, score);
         eventStorage.addLikeEvent(id, userId);
     }
 
     public void deleteLike(int id, int userId) {
-        isExists(id);
-        userService.isExists(userId);
+        checkFilmExist(id);
+        checkUserExist(userId);
 
         likeStorage.deleteLike(id, userId);
         eventStorage.deleteLikeEvent(id, userId);
@@ -83,14 +84,14 @@ public class FilmService {
     }
 
     public List<Film> getCommonFilms(int userId, int friendId) {
-        userService.isExists(userId);
-        userService.isExists(friendId);
+        checkUserExist(userId);
+        checkUserExist(friendId);
 
         return filmStorage.getCommonFilms(userId, friendId);
     }
 
     public void deleteFilmById(int filmId) {
-        isExists(filmId);
+        checkFilmExist(filmId);
         filmStorage.deleteFilmById(filmId);
     }
 
@@ -109,10 +110,15 @@ public class FilmService {
         return films;
     }
 
-    private void isExists(int id) {
-        if (!filmStorage.isExist(id)) {
-            log.warn(String.format("Film with id: %d doesn't exist!", id));
+    private void checkFilmExist(int id) {
+        if (!filmStorage.isExistById(id)) {
             throw new ResourceNotFoundException(String.format("Film with id: %d doesn't exist!", id));
+        }
+    }
+
+    private void checkUserExist(int userId) {
+        if (!userStorage.isExistById(userId)) {
+            throw new ResourceNotFoundException(String.format("User with id: %d doesn't exist!", userId));
         }
     }
 
@@ -136,7 +142,6 @@ public class FilmService {
         }
 
         if (errorMessage != null) {
-            log.warn(errorMessage);
             throw new ValidationException(errorMessage);
         }
     }

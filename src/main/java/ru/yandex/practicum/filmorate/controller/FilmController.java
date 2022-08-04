@@ -1,14 +1,21 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
+import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import java.util.List;
 
+@Validated
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/films")
@@ -39,9 +46,13 @@ public class FilmController {
     @PutMapping("/{id}/like/{userId}")
     public void addLike(
             @PathVariable int id,
-            @PathVariable int userId
+            @PathVariable int userId,
+            @RequestParam(defaultValue = "10")
+            @Min(value = 1, message = "Score is too low. Score must be from 1 to 10")
+            @Max(value = 10, message = "Score is too high. Score must be from 1 to 10")
+            int score
     ) {
-        filmService.addLike(id, userId);
+        filmService.addLike(id, userId, score);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
@@ -82,10 +93,15 @@ public class FilmController {
     public List<Film> getDirectorFilmSortedByYearOrLikes(
             @PathVariable int directorId,
             @RequestParam String sortBy) {
-        if (sortBy.equalsIgnoreCase("year") | sortBy.equalsIgnoreCase("likes")) {
-            return filmService.getDirectorFilmSortedByYearOrLikes(directorId, sortBy);
-        } else {
+        if (!sortBy.equalsIgnoreCase("year") && !sortBy.equalsIgnoreCase("likes")) {
             throw new ValidationException("Incorrect sorting parameter!");
         }
+        return filmService.getDirectorFilmSortedByYearOrLikes(directorId, sortBy);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<String> handleConstraintViolationException(ConstraintViolationException e) {
+        return new ResponseEntity<>("Not valid due to validation error: " + e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 }

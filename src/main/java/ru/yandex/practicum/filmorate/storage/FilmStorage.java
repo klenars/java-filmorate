@@ -14,7 +14,7 @@ public interface FilmStorage {
 
     Film get(int id);
 
-    boolean isExist(int id);
+    boolean isExistById(int id);
 
     List<Film> getAll();
 
@@ -39,4 +39,6 @@ public interface FilmStorage {
     List<Film> getFilmBySubstringInDirectorAndTitle(String substring);
 
     List<Film> getDirectorFilmSortedByYearOrLikes(int directorId, String sort);
+
+    List<Film> getRecommendations(int id);
 }

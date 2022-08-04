@@ -2,8 +2,6 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ResourceNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -17,11 +15,7 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -41,12 +35,12 @@ public class UserService {
     }
 
     public User getById(int id) {
-        isExists(id);
+        checkUserExist(id);
         return userStorage.get(id);
     }
 
     public User update(User user) {
-        isExists(user.getId());
+        checkUserExist(user.getId());
         validation(user);
         userStorage.update(user);
         log.info("Updated user id: {}", user.getId());
@@ -58,92 +52,58 @@ public class UserService {
     }
 
     public void delete(User user) {
-        isExists(user.getId());
+        checkUserExist(user.getId());
         userStorage.delete(user);
     }
 
     public void addFriend(int id, int friendId) {
-        isExists(id);
-        isExists(friendId);
+        checkUserExist(id);
+        checkUserExist(friendId);
 
         friendshipStorage.addFriend(id, friendId);
         eventStorage.addFriendEvent(id, friendId);
     }
 
     public void deleteFriend(int id, int friendId) {
-        isExists(id);
-        isExists(friendId);
+        checkUserExist(id);
+        checkUserExist(friendId);
 
         friendshipStorage.deleteFriend(id, friendId);
         eventStorage.deleteFriendEvent(id, friendId);
     }
 
     public List<User> getAllFriends(int id) {
-        isExists(id);
+        checkUserExist(id);
 
         return friendshipStorage.getAllFriends(id);
     }
 
     public List<User> getCommonFriends(int id, int otherId) {
-        isExists(id);
-        isExists(otherId);
+        checkUserExist(id);
+        checkUserExist(otherId);
 
         return friendshipStorage.getCommonFriends(id, otherId);
     }
 
-    public void isExists(int id) {
-        if (!userStorage.isExists(id)) {
-            log.warn(String.format("User with id: %d doesn't exist!", id));
+    public void checkUserExist(int id) {
+        if (!userStorage.isExistById(id)) {
             throw new ResourceNotFoundException(String.format("User with id: %d doesn't exist!", id));
         }
     }
 
     public void deleteUserById(int userId) {
-        isExists(userId);
+        checkUserExist(userId);
         userStorage.deleteUserById(userId);
     }
 
     public List<Film> getRecommendations(int id) {
-        isExists(id);
+        checkUserExist(id);
 
-        User user = getById(id);
-        List<Film> userListFilm = filmStorage.getFilmsLikeUser(id);
-
-        List<User> allUsers = getAll();
-        allUsers.remove(user);
-
-        Map<User, List<Film>> userListMap = allUsers.stream()
-                .collect(Collectors.toMap(Function.identity(), u -> filmStorage.getFilmsLikeUser(u.getId())));
-
-        int maxFreq = 0;
-        Map<User, Integer> sameUser = new HashMap<>();
-        for (Map.Entry<User, List<Film>> entry : userListMap.entrySet()) {
-            int freq = 0;
-            for (Film film : entry.getValue()) {
-                if (userListFilm.contains(film)) {
-                    freq++;
-                }
-            }
-            if (freq > maxFreq) {
-                maxFreq = freq;
-            }
-            sameUser.put(entry.getKey(), freq);
-        }
-
-        List<Film> recommendation = new ArrayList<>();
-        for (Map.Entry<User, Integer> userEntry : sameUser.entrySet()) {
-            if (userListMap.get(userEntry.getKey()).size() > maxFreq) {
-                List<Film> diff = userListMap.get(userEntry.getKey());
-                diff.removeAll(userListFilm);
-                recommendation.addAll(diff);
-            }
-        }
-
-        return recommendation;
+        return filmStorage.getRecommendations(id);
     }
 
     public List<Event> getFeed(int userId) {
-        isExists(userId);
+        checkUserExist(userId);
 
         return eventStorage.getFeed(userId);
     }
@@ -164,7 +124,6 @@ public class UserService {
         }
 
         if (errorMessage != null) {
-            log.warn(errorMessage);
             throw new ValidationException(errorMessage);
         }
     }
