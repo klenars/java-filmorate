@@ -4,6 +4,7 @@
 - [Новикова Надежда](https://github.com/NadezhdaNovikova) 
 - [Сафиулин Роман](https://github.com/SafiulinRM)
 - [Павел Ковалев](https://github.com/M0L0D0Y)
+- [Роман Аникин](https://github.com/Roman-Anikin)
 - [Кленин Арсений](https://github.com/klenars) <br>
 
 Бэкенд для сервиса, который работает с фильмами, пользователями, их отзывами
